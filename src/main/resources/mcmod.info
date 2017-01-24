@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
+  "modid": "crccm",
+  "name": "MrCrayfish's RC Car Mod",
+  "description": "This mod as in an RC Car. Developed as a part of Mod Week",
+  "version": "1.0",
+  "mcversion": "1.11.2",
   "url": "",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["MrCrayfish"],
+  "credits": "Thanks to people who donated in the livestream while making this mod; JackHack, LoganSpill, RedTek, budgidiere, DanielGamerDE, Dybaltion, OHFISHAL_Batman, fabbe50, KingYoshiMC, Jax, Mannus",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
