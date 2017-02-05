@@ -41,7 +41,7 @@ public class RenderCar extends Render<EntityCar>
 		GlStateManager.pushMatrix();
 		{
 			GlStateManager.translate(x, y, z);
-			GlStateManager.rotate(-entity.rotationYaw + 180F, 0, 1, 0);
+			GlStateManager.rotate(180F - entityYaw, 0, 1, 0);
 			Minecraft.getMinecraft().getRenderManager().doRenderEntity(CAR, 0, 0, 0, 0f, 0f, true);
 			
 			GlStateManager.pushMatrix();
