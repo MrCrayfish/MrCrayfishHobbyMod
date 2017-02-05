@@ -45,6 +45,7 @@ public class RenderCar extends Render<EntityCar>
 			GlStateManager.translate(0, 0, -0.4);
 			Minecraft.getMinecraft().getRenderManager().doRenderEntity(CAR, 0, 0, 0, 0F, 0F, true);
 			
+			float wheelSpin = entity.prevWheelRotation + (entity.wheelRotation - entity.prevWheelRotation) * partialTicks;
 			GlStateManager.pushMatrix();
 			{
 				GlStateManager.translate(0.3, 0.13125, -0.4075);
@@ -54,7 +55,7 @@ public class RenderCar extends Render<EntityCar>
 					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
 					if(entity.isMoving())
 					{
-						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
 					GlStateManager.translate(0, -0.5375, 0.0);
 					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
@@ -68,7 +69,7 @@ public class RenderCar extends Render<EntityCar>
 					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
 					if(entity.isMoving())
 					{
-						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
 					GlStateManager.translate(0, -0.5375, 0.0);
 					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
@@ -85,7 +86,7 @@ public class RenderCar extends Render<EntityCar>
 				{
 					if(entity.isMoving())
 					{
-						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
 					GlStateManager.translate(0, -0.5375, 0.0);
 					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
@@ -98,7 +99,7 @@ public class RenderCar extends Render<EntityCar>
 				{
 					if(entity.isMoving())
 					{
-						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
 					GlStateManager.translate(0, -0.5375, 0.0);
 					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);

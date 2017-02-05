@@ -2,6 +2,7 @@ package com.mrcrayfish.rccar.entity;
 
 import com.mrcrayfish.rccar.init.ModItems;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.MoverType;
@@ -10,7 +11,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public class EntityCar extends Entity
@@ -22,6 +26,8 @@ public class EntityCar extends Entity
 	
 	private float wheelAngle = 0F;
 	private float prevWheelAngle = 0F;
+	public float wheelRotation = 0F;
+	public float prevWheelRotation = 0F;
 	
 	public EntityCar(World worldIn) 
 	{
@@ -49,10 +55,13 @@ public class EntityCar extends Entity
 		super.onUpdate();
 		
 		this.prevWheelAngle = this.wheelAngle;
+		this.prevWheelRotation = this.wheelRotation;
+		
 		this.rotationYaw -= (this.wheelAngle / 2F) * (this.currentSpeed / MAX_SPEED);
 		this.motionY -= 0.05D;
+		this.wheelRotation += this.currentSpeed * 10F;
 		
-		if(currentSpeed > 0.01)
+		if(this.currentSpeed > 0.01)
 		{
 			this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 			this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
@@ -65,6 +74,11 @@ public class EntityCar extends Entity
 		if(isCollidedHorizontally)
 		{
 			this.currentSpeed *= 0.5D;
+		}
+		
+		if(currentSpeed > 3)
+		{
+			this.createRunningParticles();
 		}
 		
 		this.currentSpeed *= 0.95D;
@@ -137,11 +151,19 @@ public class EntityCar extends Entity
 		}
 	}
 	
+	public double getSpeedPercentage()
+	{
+		return currentSpeed / MAX_SPEED;
+	}
+	
 	@Override
 	protected boolean canBeRidden(Entity entityIn) 
 	{
 		return true;
 	}
+	
+	@Override
+	protected void playStepSound(BlockPos pos, Block blockIn) {}
 	
 	public void turn(Turn turn)
 	{
