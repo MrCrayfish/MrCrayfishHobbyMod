@@ -10,6 +10,6 @@ public class ModEntities
 {
 	public static void register()
 	{
-		EntityRegistry.registerModEntity(new ResourceLocation("crccm:car"), EntityCar.class, "crccmCar", 0, MrCrayfishRCCarMod.instance, 64, 10, true);
+		EntityRegistry.registerModEntity(new ResourceLocation("crccm:car"), EntityCar.class, "crccmCar", 0, MrCrayfishRCCarMod.instance, 64, 1, true);
 	}
 }

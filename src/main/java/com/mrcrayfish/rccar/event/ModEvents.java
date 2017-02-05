@@ -5,6 +5,7 @@ import java.util.List;
 import org.lwjgl.input.Keyboard;
 
 import com.mrcrayfish.rccar.entity.EntityCar;
+import com.mrcrayfish.rccar.entity.EntityCar.Turn;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.network.message.MessageExplodeCar;
@@ -12,13 +13,20 @@ import com.mrcrayfish.rccar.network.message.MessageMoveCar;
 import com.mrcrayfish.rccar.network.message.MessageTurnCar;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ModEvents 
 {
@@ -38,17 +46,18 @@ public class ModEvents
 						event.setCanceled(true);
 						
 						String uuid = stack.getTagCompound().getString("linked_car");
+
 						if(Keyboard.isKeyDown(Keyboard.KEY_W))
 						{
 							moveCarForward(uuid);
 						}
 						if(Keyboard.isKeyDown(Keyboard.KEY_A))
 						{
-							turnCar(uuid, -5F);
+							turnCar(uuid, Turn.LEFT);
 						}
 						if(Keyboard.isKeyDown(Keyboard.KEY_D))
 						{
-							turnCar(uuid, 5F);
+							turnCar(uuid, Turn.RIGHT);
 						}
 						if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
 						{
@@ -75,7 +84,7 @@ public class ModEvents
 		PacketHandler.INSTANCE.sendToServer(new MessageMoveCar(uuid));
 	}
 	
-	public void turnCar(String uuid, float yaw)
+	public void turnCar(String uuid, Turn turn)
 	{
 		World world = Minecraft.getMinecraft().world;
 		EntityCar foundCar = null;
@@ -90,8 +99,8 @@ public class ModEvents
 		}
 		if(foundCar != null)
 		{
-			foundCar.rotationYaw += yaw;
-			PacketHandler.INSTANCE.sendToServer(new MessageTurnCar(uuid, foundCar.rotationYaw));
+			foundCar.turn(turn);
+			PacketHandler.INSTANCE.sendToServer(new MessageTurnCar(uuid, turn));
 		}
 	}
 }

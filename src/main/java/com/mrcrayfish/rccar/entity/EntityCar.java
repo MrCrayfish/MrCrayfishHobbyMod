@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class EntityCar extends Entity
@@ -17,7 +18,10 @@ public class EntityCar extends Entity
 	private boolean isMoving = false;
 	private double currentSpeed;
 	
-	private final double MAX_SPEED = 10;
+	public static final double MAX_SPEED = 10;
+	
+	private float wheelAngle = 0F;
+	private float prevWheelAngle = 0F;
 	
 	public EntityCar(World worldIn) 
 	{
@@ -43,21 +47,25 @@ public class EntityCar extends Entity
 	public void onUpdate() 
 	{
 		super.onUpdate();
+		
+		this.prevWheelAngle = this.wheelAngle;
+		
+		this.rotationYaw -= this.wheelAngle / 2F;
+		
 		this.motionY += -0.05D;
 
-		if(currentSpeed > 0)
+		if(currentSpeed > 0.01)
 		{
-			this.motionX = -Math.sin((double) (rotationYaw * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
-			this.motionZ = Math.cos((double) (rotationYaw * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 		}
 		
 		this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-		
-		System.out.println(rotationYaw);
-		
+
 		this.isMoving = this.motionX >= 0.01 || this.motionX <= -0.01 || this.motionZ >= 0.01 || this.motionZ <= -0.01;
 		
 		this.currentSpeed *= 0.9D;
+		this.wheelAngle *= 0.75F;
 	}
 	
 	@Override
@@ -114,10 +122,39 @@ public class EntityCar extends Entity
 	
 	public void increaseSpeed()
 	{
-		currentSpeed += 1.0D;
+		currentSpeed += 0.5D;
 		if(currentSpeed > MAX_SPEED)
 		{
 			currentSpeed = MAX_SPEED;
 		}
+	}
+	
+	@Override
+	protected boolean canBeRidden(Entity entityIn) 
+	{
+		return true;
+	}
+	
+	public void turn(Turn turn)
+	{
+		switch(turn)
+		{
+		case LEFT:
+			MathHelper.clamp(wheelAngle += 8F, -20, 20);
+			break;
+		case RIGHT:
+			MathHelper.clamp(wheelAngle -= 8F, -20, 20);
+			break;
+		}
+	}
+	
+	public float getWheelAngle() 
+	{
+		return wheelAngle;
+	}
+	
+	public static enum Turn 
+	{
+		LEFT, RIGHT;
 	}
 }

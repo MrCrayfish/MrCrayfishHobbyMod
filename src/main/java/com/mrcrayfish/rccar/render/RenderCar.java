@@ -50,6 +50,7 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
+					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
 					if(entity.isMoving())
 					{
 						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
@@ -63,6 +64,7 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
+					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
 					if(entity.isMoving())
 					{
 						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
