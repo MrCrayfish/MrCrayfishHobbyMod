@@ -46,19 +46,61 @@ public class RenderCar extends Render<EntityCar>
 			
 			GlStateManager.pushMatrix();
 			{
-				GlStateManager.translate(0.3, -0.4, -0.4075);
-				Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				GlStateManager.translate(0.3, 0.13125, -0.4075);
+				
+				GlStateManager.pushMatrix();
+				{
+					if(entity.isMoving())
+					{
+						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+					}
+					GlStateManager.translate(0, -0.5375, 0.0);
+					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				}
+				GlStateManager.popMatrix();
+				
 				GlStateManager.translate(-0.6, 0, 0);
-				Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				
+				GlStateManager.pushMatrix();
+				{
+					if(entity.isMoving())
+					{
+						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+					}
+					GlStateManager.translate(0, -0.5375, 0.0);
+					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				}
+				GlStateManager.popMatrix();
 			}
 			GlStateManager.popMatrix();
 			
 			GlStateManager.pushMatrix();
 			{
-				GlStateManager.translate(0.3, -0.4, 0.4075);
-				Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				GlStateManager.translate(0.3, 0.13125, 0.4075);
+				
+				GlStateManager.pushMatrix();
+				{
+					if(entity.isMoving())
+					{
+						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+					}
+					GlStateManager.translate(0, -0.5375, 0.0);
+					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				}
+				GlStateManager.popMatrix();
+				
 				GlStateManager.translate(-0.6, 0, 0);
-				Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				
+				GlStateManager.pushMatrix();
+				{
+					if(entity.isMoving())
+					{
+						GlStateManager.rotate(-entity.ticksExisted * 20F, 1, 0, 0);
+					}
+					GlStateManager.translate(0, -0.5375, 0.0);
+					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
+				}
+				GlStateManager.popMatrix();
 			}
 			GlStateManager.popMatrix();
 		}
