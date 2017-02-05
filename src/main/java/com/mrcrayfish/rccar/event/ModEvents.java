@@ -40,7 +40,6 @@ public class ModEvents
 						String uuid = stack.getTagCompound().getString("linked_car");
 						if(Keyboard.isKeyDown(Keyboard.KEY_W))
 						{
-							System.out.println("Key pressed");
 							moveCarForward(uuid);
 						}
 						if(Keyboard.isKeyDown(Keyboard.KEY_A))
@@ -69,7 +68,7 @@ public class ModEvents
 		{
 			if(car.getUniqueID().toString().equals(uuid))
 			{
-				car.moveRelative(0F, 0.05F, 1F);
+				car.increaseSpeed();
 				break;
 			}
 		}

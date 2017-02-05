@@ -45,7 +45,8 @@ public class MessageMoveCar implements IMessage, IMessageHandler<MessageMoveCar,
 		{
 			if(car.getUniqueID().toString().equals(message.uuid))
 			{
-				car.moveRelative(0F, 0.05F, 1F);
+				//car.moveRelative(0F, 0.05F, 1F); Save later for drift option
+				car.increaseSpeed();
 				return null;
 			}
 		}
