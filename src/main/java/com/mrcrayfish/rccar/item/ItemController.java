@@ -31,7 +31,10 @@ public class ItemController extends Item
 			{
 				tooltip.add(TextFormatting.GOLD.toString() + TextFormatting.BOLD.toString() + "Linked");
 				tooltip.add(stack.getTagCompound().getString("linked_car"));
+				return;
 			}
 		}
+		tooltip.add(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "Unlinked");
+		tooltip.add("Right click a car with this controller to link them together");
 	}
 }

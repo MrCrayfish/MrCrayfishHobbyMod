@@ -93,6 +93,11 @@ public class EntityCar extends Entity
 				if(!stack.getTagCompound().hasKey("linked_car"))
 				{
 					stack.getTagCompound().setString("linked_car", getUniqueID().toString());
+					if(!world.isRemote)
+					{
+						player.sendMessage(new TextComponentString(TextFormatting.GOLD.toString() + TextFormatting.BOLD.toString() + "Car succesfully linked!"));
+						player.sendMessage(new TextComponentString("Use WASD to drive around. Press C to view the car's camera."));
+					}
 				}
 				return true;
 			}
