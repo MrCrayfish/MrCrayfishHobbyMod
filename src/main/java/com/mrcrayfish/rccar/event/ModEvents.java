@@ -140,6 +140,39 @@ public class ModEvents
 			GlStateManager.rotate(5F, 1, 0, 0);
 		}
 	}
+	@SubscribeEvent
+	public void onRnderLast(RenderWorldLastEvent event)
+	{
+		if(renderCarView && renderEntity != null)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+			Render render = mc.getRenderManager().getEntityRenderObject(mc.player);
+			if(render instanceof RenderPlayer)
+			{
+				RenderPlayer renderPlayer = (RenderPlayer) render;
+				ModelPlayer playerModel = renderPlayer.getMainModel();
+				mc.getTextureManager().bindTexture(mc.player.getLocationSkin());
+				
+				double deltaX = mc.player.posX - renderEntity.prevPosX - (renderEntity.posX - renderEntity.prevPosX) * event.getPartialTicks();
+				double deltaY = mc.player.posY - renderEntity.prevPosY - (renderEntity.posY - renderEntity.prevPosY) * event.getPartialTicks();
+				double deltaZ = mc.player.posZ - renderEntity.prevPosZ - (renderEntity.posZ - renderEntity.prevPosZ) * event.getPartialTicks();
+				
+				
+				GlStateManager.pushMatrix();
+				{
+					GlStateManager.translate(deltaX, deltaY, deltaZ);
+					GlStateManager.rotate(180F, 1, 0, 0);
+					GlStateManager.translate(0, -1.5, 0);
+					GlStateManager.rotate(mc.player.rotationYaw, 0, 1, 0);
+					RenderHelper.enableGUIStandardItemLighting();
+					GlStateManager.enableAlpha();
+					playerModel.rightArmPose = ArmPose.BOW_AND_ARROW;
+					playerModel.render(mc.player, 0F, 0F, 0, 0f, mc.player.rotationPitch, 0.0625F);
+				}
+				GlStateManager.popMatrix();
+			}
+		}
+	}
 
 	public void moveCarForward(String uuid)
 	{
