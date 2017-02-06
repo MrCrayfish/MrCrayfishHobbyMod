@@ -1,16 +1,17 @@
 package com.mrcrayfish.rccar.entity;
 
 import com.mrcrayfish.rccar.init.ModItems;
+import com.mrcrayfish.rccar.init.ModSounds;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
@@ -109,6 +110,7 @@ public class EntityCar extends Entity
 					stack.getTagCompound().setString("linked_car", getUniqueID().toString());
 					if(!world.isRemote)
 					{
+						world.playSound((EntityPlayer)null, getPosition(), ModSounds.connect, SoundCategory.AMBIENT, 1.0F, 1.0F);
 						player.sendMessage(new TextComponentString(TextFormatting.GOLD.toString() + TextFormatting.BOLD.toString() + "Car succesfully linked!"));
 						player.sendMessage(new TextComponentString("Use WASD to drive around. Press C to view the car's camera."));
 					}

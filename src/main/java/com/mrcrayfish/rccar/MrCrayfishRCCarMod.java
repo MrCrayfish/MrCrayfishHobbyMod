@@ -4,6 +4,7 @@ import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.init.ModCrafting;
 import com.mrcrayfish.rccar.init.ModEntities;
 import com.mrcrayfish.rccar.init.ModItems;
+import com.mrcrayfish.rccar.init.ModSounds;
 import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.proxy.IProxy;
 
@@ -34,6 +35,7 @@ public class MrCrayfishRCCarMod
 		ModItems.register();
 		ModEntities.register();
 		ModCrafting.init();
+		ModSounds.register();
 		proxy.preInit();
 	}
 	
@@ -44,6 +46,5 @@ public class MrCrayfishRCCarMod
 		
 		PacketHandler.init();
 		
-		MinecraftForge.EVENT_BUS.register(new ModEvents());
 	}
 }
