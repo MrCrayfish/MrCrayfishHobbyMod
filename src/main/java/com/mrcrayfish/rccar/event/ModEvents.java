@@ -16,21 +16,23 @@ import com.mrcrayfish.rccar.proxy.ClientProxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.model.ModelBiped.ArmPose;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.EntityViewRenderEvent.FOVModifier;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
@@ -74,10 +76,8 @@ public class ModEvents
 						}
 						if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
 						{
+							System.out.println("called?");
 							PacketHandler.INSTANCE.sendToServer(new MessageExplodeCar(uuid));
-							renderEntity = null;
-							mc.setRenderViewEntity(player);
-							renderCarView = false;
 						}
 						if(ClientProxy.KEY_CAMERA.isPressed())
 						{
@@ -121,7 +121,7 @@ public class ModEvents
 			
 			if(renderEntity != null)
 			{
-				if(player.getDistanceToEntity(renderEntity) >= 64F)
+				if(player.getDistanceToEntity(renderEntity) >= 256F)
 				{
 					renderEntity = null;
 					mc.setRenderViewEntity(player);
@@ -140,6 +140,45 @@ public class ModEvents
 			GlStateManager.rotate(5F, 1, 0, 0);
 		}
 	}
+	
+	@SubscribeEvent
+	public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
+	{
+		if(renderCarView) event.setCanceled(true);
+		System.out.println("Cancelling");
+	}
+	
+	@SubscribeEvent
+	public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
+	{
+		if(renderCarView) event.setCanceled(true);
+	}
+	
+	@SubscribeEvent
+	public void onRightClickBlock(PlayerInteractEvent.EntityInteract event)
+	{
+		if(renderCarView) event.setCanceled(true);
+	}
+	
+	@SubscribeEvent
+	public void onAttackEntity(AttackEntityEvent event)
+	{
+		if(renderCarView) event.setCanceled(true);
+	}
+	
+	@SubscribeEvent 
+	public void onRenderPlayer(RenderPlayerEvent.Pre event)
+	{
+		event.getRenderer().getMainModel().rightArmPose = ArmPose.BOW_AND_ARROW;
+		event.getRenderer().getMainModel().leftArmPose = ArmPose.BOW_AND_ARROW;
+		//ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
+		//if(!stack.isEmpty() && stack.getItem() == ModItems.controller)
+		//{
+			
+			
+		//}
+	}
+	
 	@SubscribeEvent
 	public void onRnderLast(RenderWorldLastEvent event)
 	{

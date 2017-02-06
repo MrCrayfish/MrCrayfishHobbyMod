@@ -1,5 +1,8 @@
 package com.mrcrayfish.rccar.entity;
 
+import com.mrcrayfish.rccar.MrCrayfishRCCarMod;
+import com.mrcrayfish.rccar.gui.GuiCar;
+import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
 
@@ -8,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
@@ -23,12 +27,16 @@ public class EntityCar extends Entity
 	private boolean isMoving = false;
 	private double currentSpeed;
 	
-	public static final double MAX_SPEED = 5;
+	public static final double MAX_SPEED = 10;
 	
 	private float wheelAngle = 0F;
 	private float prevWheelAngle = 0F;
 	public float wheelRotation = 0F;
 	public float prevWheelRotation = 0F;
+	
+	private Case currentCase = Case.STANDARD;
+	private ItemStack currentCaseItem = new ItemStack(ModItems.case_standard);
+	private float wheelSize = 1.0F;
 	
 	public EntityCar(World worldIn) 
 	{
@@ -41,7 +49,6 @@ public class EntityCar extends Entity
 	{
 		this(worldIn);
 		this.setPosition(x, y, z);
-		this.moveRelative(0F, 0.05F, 0.1F);
 	}
 	
 	@Override
@@ -97,6 +104,12 @@ public class EntityCar extends Entity
 			return true;
 		}
 		ItemStack stack = player.getHeldItem(hand);
+		if(world.isRemote && stack.getItem() == ModItems.wrench)
+		{
+			GuiHandler.setCar(getEntityId());
+			player.openGui(MrCrayfishRCCarMod.instance, GuiCar.ID, world, 0, 0, 0);
+			return true;
+		}
 		if(!stack.isEmpty())
 		{
 			if(stack.getItem() == ModItems.controller)
@@ -118,7 +131,7 @@ public class EntityCar extends Entity
 				return true;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -139,6 +152,15 @@ public class EntityCar extends Entity
 		
 	}
 	
+	@Override
+	protected boolean canBeRidden(Entity entityIn) 
+	{
+		return true;
+	}
+	
+	@Override
+	protected void playStepSound(BlockPos pos, Block blockIn) {}
+	
 	public boolean isMoving() 
 	{
 		return isMoving;
@@ -158,15 +180,6 @@ public class EntityCar extends Entity
 		return currentSpeed / MAX_SPEED;
 	}
 	
-	@Override
-	protected boolean canBeRidden(Entity entityIn) 
-	{
-		return true;
-	}
-	
-	@Override
-	protected void playStepSound(BlockPos pos, Block blockIn) {}
-	
 	public void turn(Turn turn)
 	{
 		switch(turn)
@@ -185,8 +198,19 @@ public class EntityCar extends Entity
 		return wheelAngle;
 	}
 	
+	public ItemStack getCurrentCaseItem() 
+	{
+		return currentCaseItem;
+	}
+	
 	public static enum Turn 
 	{
 		LEFT, RIGHT;
+	}
+	
+	public static enum Case
+	{
+		STANDARD,
+		DIFFERENT;
 	}
 }
