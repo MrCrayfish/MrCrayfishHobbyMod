@@ -1,6 +1,7 @@
 package com.mrcrayfish.rccar;
 
 import com.mrcrayfish.rccar.event.ModEvents;
+import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModCrafting;
 import com.mrcrayfish.rccar.init.ModEntities;
 import com.mrcrayfish.rccar.init.ModItems;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, acceptedMinecraftVersions = Reference.ACCEPTED_MC_VERSIONS)
 public class MrCrayfishRCCarMod 
@@ -46,5 +48,43 @@ public class MrCrayfishRCCarMod
 		
 		PacketHandler.init();
 		
+		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 	}
+	
+	/* Ideas:
+	 * Mining Car (has pickaxe and you can mine stuff) Drill?
+	 * More models
+	 * Monster truck wheels?
+	 * Different colours 
+	 * Batteries and charging station - Snoozer
+	 * Speedometer - Snoozer
+	 * Car horn
+	 * Guns
+	 * Ramps
+	 * Trailer
+	 * Farting Box
+	 * */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
