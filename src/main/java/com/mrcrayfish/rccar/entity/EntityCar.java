@@ -65,7 +65,13 @@ public class EntityCar extends Entity
 		this.prevWheelAngle = this.wheelAngle;
 		this.prevWheelRotation = this.wheelRotation;
 		
-		this.rotationYaw -= (this.wheelAngle / 2F) * (this.currentSpeed / MAX_SPEED);
+		double deltaYaw = (this.wheelAngle / 2F);
+		if(currentSpeed <= 2.5)
+		{
+			deltaYaw *= currentSpeed / 2.5;
+		}
+		this.rotationYaw -= deltaYaw;
+		
 		this.motionY -= 0.05D;
 		this.wheelRotation += this.currentSpeed * 10F;
 		
@@ -74,10 +80,13 @@ public class EntityCar extends Entity
 			this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 			this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 		}
-		
-		this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
 		this.isMoving = this.motionX >= 0.01 || this.motionX <= -0.01 || this.motionZ >= 0.01 || this.motionZ <= -0.01;
+		
+		if(isMoving)
+		{
+			this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+		}
 		
 		if(isCollidedHorizontally)
 		{
