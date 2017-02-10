@@ -1,10 +1,11 @@
-package com.mrcrayfish.rccar.render;
+package com.mrcrayfish.rccar.client.render;
 
-import org.lwjgl.opengl.GL11;
-
+import com.mrcrayfish.rccar.block.BlockRamp;
+import com.mrcrayfish.rccar.block.attribute.Angled;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.init.ModItems;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -12,7 +13,10 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class RenderCar extends Render<EntityCar>
 {
@@ -26,6 +30,9 @@ public class RenderCar extends Render<EntityCar>
 		BASE.hoverStart = 0F;
 		WHEEL.hoverStart = 0F;
 	}
+	
+	private Angled angledSurface;
+	private EnumFacing facing;
 	
 	public RenderCar(RenderManager renderManager) 
 	{
@@ -47,6 +54,14 @@ public class RenderCar extends Render<EntityCar>
 		{
 			GlStateManager.translate(x, y, z);
 			GlStateManager.rotate(180F - entityYaw, 0, 1, 0);
+			
+			updatedAngledSurface(entity.posX, entity.posY, entity.posZ);
+			if(angledSurface != null)
+			{
+				GlStateManager.translate(0, -0.12, 0);
+				GlStateManager.rotate(25F, 1, 0, 0);
+			}
+			
 			GlStateManager.translate(0, 0, -0.4);
 			Minecraft.getMinecraft().getRenderManager().doRenderEntity(currentCase, 0, 0, 0, 0F, 0F, true);
 			Minecraft.getMinecraft().getRenderManager().doRenderEntity(BASE, 0, 0, 0, 0F, 0F, true);
@@ -124,5 +139,28 @@ public class RenderCar extends Render<EntityCar>
 		}
 		GlStateManager.popMatrix();
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+	}
+	
+	public void updatedAngledSurface(double posX, double posY, double posZ)
+	{
+		this.angledSurface = null;
+		
+		World world = Minecraft.getMinecraft().world;
+		BlockPos pos = new BlockPos(posX, posY, posZ);
+		
+		IBlockState inside = world.getBlockState(pos);
+		if(inside.getBlock() instanceof Angled)
+		{
+			this.angledSurface = (Angled) inside.getBlock();
+			this.facing = inside.getValue(angledSurface.getDirectionProp());
+			return;
+		}
+		
+		IBlockState below = world.getBlockState(pos.down());
+		if(below.getBlock() instanceof Angled)
+		{
+			this.angledSurface = (Angled) below.getBlock();
+			this.facing = below.getValue(angledSurface.getDirectionProp());
+		}
 	}
 }

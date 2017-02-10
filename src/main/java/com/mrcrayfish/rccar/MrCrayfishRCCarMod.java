@@ -2,6 +2,7 @@ package com.mrcrayfish.rccar;
 
 import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.gui.GuiHandler;
+import com.mrcrayfish.rccar.init.ModBlocks;
 import com.mrcrayfish.rccar.init.ModCrafting;
 import com.mrcrayfish.rccar.init.ModEntities;
 import com.mrcrayfish.rccar.init.ModItems;
@@ -33,6 +34,8 @@ public class MrCrayfishRCCarMod
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		ModBlocks.init();
+		ModBlocks.register();
 		ModItems.init();
 		ModItems.register();
 		ModEntities.register();

@@ -1,22 +1,23 @@
-package com.mrcrayfish.rccar.proxy;
+package com.mrcrayfish.rccar.client;
 
 import org.lwjgl.input.Keyboard;
 
+import com.mrcrayfish.rccar.client.model.block.CustomLoader;
+import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.event.ModEvents;
+import com.mrcrayfish.rccar.init.ModBlocks;
 import com.mrcrayfish.rccar.init.ModItems;
-import com.mrcrayfish.rccar.render.RenderCar;
+import com.mrcrayfish.rccar.proxy.IProxy;
 
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ClientProxy implements IProxy
 {
@@ -30,11 +31,14 @@ public class ClientProxy implements IProxy
 		MinecraftForge.EVENT_BUS.register(new ModEvents());
 		
 		ClientRegistry.registerKeyBinding(KEY_CAMERA);
+		
+		ModelLoaderRegistry.registerLoader(new CustomLoader());
 	}
 	
 	@Override
 	public void init() 
 	{
+		ModBlocks.registerRenders();
 		ModItems.registerRenders();
 	}
 	

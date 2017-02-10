@@ -5,6 +5,7 @@ import java.util.List;
 import org.lwjgl.input.Keyboard;
 
 import com.mrcrayfish.rccar.RemoteMovementInput;
+import com.mrcrayfish.rccar.client.ClientProxy;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.entity.EntityCar.Turn;
 import com.mrcrayfish.rccar.init.ModItems;
@@ -12,7 +13,6 @@ import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.network.message.MessageExplodeCar;
 import com.mrcrayfish.rccar.network.message.MessageMoveCar;
 import com.mrcrayfish.rccar.network.message.MessageTurnCar;
-import com.mrcrayfish.rccar.proxy.ClientProxy;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
