@@ -55,14 +55,12 @@ public class BakedRampSlope implements IPerspectiveAwareModel
 	private VertexFormat format;
 	private TextureAtlasSprite mainTexture;
 	private TextureAtlasSprite metalTexture;
-	private TextureAtlasSprite railTexture;
 	
 	public BakedRampSlope(VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) 
 	{
 		this.format = format;
 		this.mainTexture = bakedTextureGetter.apply(new ResourceLocation("minecraft", "blocks/hardened_clay"));
 		this.metalTexture = bakedTextureGetter.apply(new ResourceLocation("minecraft", "blocks/stone_slab_top"));
-		this.railTexture = bakedTextureGetter.apply(new ResourceLocation("minecraft", "blocks/anvil_base"));
 	}
 
 
