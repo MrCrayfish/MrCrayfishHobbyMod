@@ -30,6 +30,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
@@ -149,15 +150,18 @@ public class BlockRamp extends BlockObject implements Angled
         			SoundType soundtype = this.getSoundType(state, worldIn, pos, playerIn);
                     worldIn.playSound(playerIn, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
         			
-        			heldStack.shrink(1);
-        			if(heldStack.isEmpty())
-        			{
-        				playerIn.inventory.deleteStack(heldStack);
-        			}
+                    if(!playerIn.capabilities.isCreativeMode)
+                    {
+                    	heldStack.shrink(1);
+                    	if(heldStack.isEmpty())
+                    	{
+                    		playerIn.inventory.deleteStack(heldStack);
+                    	}
+                    }
         		}
     		}
     	}
-    	return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
+    	return true;
     }
     
     @Override
