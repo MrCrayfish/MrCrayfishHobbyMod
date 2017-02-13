@@ -26,7 +26,7 @@ public class MrCrayfishRCCarMod
 	@Instance
 	public static MrCrayfishRCCarMod instance;
 	
-	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS)
+	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
 	public static IProxy proxy;
 	
 	public static final CreativeTabs TAB_CAR = new TabCar();

@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class RenderCar extends Render<EntityCar>
@@ -30,9 +31,6 @@ public class RenderCar extends Render<EntityCar>
 		BASE.hoverStart = 0F;
 		WHEEL.hoverStart = 0F;
 	}
-	
-	private Angled angledSurface;
-	private EnumFacing facing;
 	
 	public RenderCar(RenderManager renderManager) 
 	{
@@ -53,18 +51,50 @@ public class RenderCar extends Render<EntityCar>
 		GlStateManager.pushMatrix();
 		{
 			GlStateManager.translate(x, y, z);
+
+			float carPitch = entity.prevCarPitch + (entity.carPitch - entity.prevCarPitch) * partialTicks;
+			
+			if(entity.onGround)
+			{
+				if(entity.getAngledSurface() != null)
+				{
+					switch(entity.getAngledFacing())
+					{
+					case EAST:
+						GlStateManager.rotate(-carPitch, 0, 0, 1);
+						break;
+					case NORTH:
+						GlStateManager.rotate(-carPitch, 1, 0, 0);
+						break;
+					case SOUTH:
+						GlStateManager.rotate(carPitch, 1, 0, 0);
+						break;
+					case WEST:
+						GlStateManager.rotate(carPitch, 0, 0, 1);
+						break;
+					default:
+						break;
+					}
+					GlStateManager.translate(0, -0.12, 0);
+				}
+			}
+			
 			GlStateManager.rotate(180F - entityYaw, 0, 1, 0);
 			
-			updatedAngledSurface(entity.posX, entity.posY, entity.posZ);
-			if(angledSurface != null)
+			if(!entity.onGround)
 			{
-				GlStateManager.translate(0, -0.12, 0);
-				GlStateManager.rotate(25F, 1, 0, 0);
+				GlStateManager.rotate(-carPitch, 1, 0, 0);
 			}
 			
 			GlStateManager.translate(0, 0, -0.4);
-			Minecraft.getMinecraft().getRenderManager().doRenderEntity(currentCase, 0, 0, 0, 0F, 0F, true);
-			Minecraft.getMinecraft().getRenderManager().doRenderEntity(BASE, 0, 0, 0, 0F, 0F, true);
+
+			GlStateManager.pushMatrix();
+			{
+				Minecraft.getMinecraft().getRenderManager().doRenderEntity(currentCase, 0, 0, 0, 0F, 0F, true);
+				Minecraft.getMinecraft().getRenderManager().doRenderEntity(BASE, 0, 0, 0, 0F, 0F, true);
+			}
+			GlStateManager.popMatrix();
+			
 			
 			float wheelSpin = entity.prevWheelRotation + (entity.wheelRotation - entity.prevWheelRotation) * partialTicks;
 			double wheelScale = 1.5;
@@ -139,28 +169,5 @@ public class RenderCar extends Render<EntityCar>
 		}
 		GlStateManager.popMatrix();
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
-	}
-	
-	public void updatedAngledSurface(double posX, double posY, double posZ)
-	{
-		this.angledSurface = null;
-		
-		World world = Minecraft.getMinecraft().world;
-		BlockPos pos = new BlockPos(posX, posY, posZ);
-		
-		IBlockState inside = world.getBlockState(pos);
-		if(inside.getBlock() instanceof Angled)
-		{
-			this.angledSurface = (Angled) inside.getBlock();
-			this.facing = inside.getValue(angledSurface.getDirectionProp());
-			return;
-		}
-		
-		IBlockState below = world.getBlockState(pos.down());
-		if(below.getBlock() instanceof Angled)
-		{
-			this.angledSurface = (Angled) below.getBlock();
-			this.facing = below.getValue(angledSurface.getDirectionProp());
-		}
 	}
 }

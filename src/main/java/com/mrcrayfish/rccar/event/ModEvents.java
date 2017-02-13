@@ -74,11 +74,6 @@ public class ModEvents
 						{
 							turnCar(uuid, Turn.RIGHT);
 						}
-						if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-						{
-							System.out.println("called?");
-							PacketHandler.INSTANCE.sendToServer(new MessageExplodeCar(uuid));
-						}
 						if(ClientProxy.KEY_CAMERA.isPressed())
 						{
 							if(renderCarView) 

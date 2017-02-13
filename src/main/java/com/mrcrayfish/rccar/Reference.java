@@ -7,5 +7,5 @@ public class Reference
 	public static final String MOD_VERSION = "1.0";
 	public static final String ACCEPTED_MC_VERSIONS = "[1.11,1.11.2]";
 	public static final String CLIENT_PROXY_CLASS = "com.mrcrayfish.rccar.client.ClientProxy";
-	public static final String SERVER_PROXY_CLASS = "com.mrcrayfish.rccar.proxy.CommonProxy";
+	public static final String SERVER_PROXY_CLASS = "com.mrcrayfish.rccar.proxy.ServerProxy";
 }

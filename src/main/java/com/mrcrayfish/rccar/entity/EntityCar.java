@@ -1,12 +1,15 @@
 package com.mrcrayfish.rccar.entity;
 
 import com.mrcrayfish.rccar.MrCrayfishRCCarMod;
+import com.mrcrayfish.rccar.block.attribute.Angled;
 import com.mrcrayfish.rccar.gui.GuiCar;
 import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityItem;
@@ -14,10 +17,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -29,20 +35,26 @@ public class EntityCar extends Entity
 	
 	public static final double MAX_SPEED = 10;
 	
-	private float wheelAngle = 0F;
-	private float prevWheelAngle = 0F;
-	public float wheelRotation = 0F;
-	public float prevWheelRotation = 0F;
+	public float carPitch;
+	public float prevCarPitch;
+	private float wheelAngle;
+	private float prevWheelAngle;
+	public float wheelRotation;
+	public float prevWheelRotation;
 	
 	private Case currentCase = Case.STANDARD;
 	private ItemStack currentCaseItem = new ItemStack(ModItems.case_standard);
 	private float wheelSize = 1.0F;
+	
+	private Angled angledSurface;
+	private EnumFacing angledFacing;
 	
 	public EntityCar(World worldIn) 
 	{
 		super(worldIn);
 		this.setSize(0.8F, 0.5F);
 		this.stepHeight = 0.5F;
+		this.onGround = true;
 	}
 	
 	public EntityCar(World worldIn, double x, double y, double z) 
@@ -61,27 +73,53 @@ public class EntityCar extends Entity
 	public void onUpdate() 
 	{
 		super.onUpdate();
-		
+
+		this.prevCarPitch = this.carPitch;
 		this.prevWheelAngle = this.wheelAngle;
 		this.prevWheelRotation = this.wheelRotation;
 		
+		boolean wasOnSurface = this.angledSurface != null;
+		this.updateAngledSurface();
+		
+		if(this.angledSurface != null)
+		{
+			this.carPitch = -25F;
+		}
+		else if(carPitch < 0 || !this.onGround)
+		{
+			if(this.carPitch < 85F)
+			{
+				this.carPitch += 5F;
+			}
+		}
+		else
+		{
+			this.carPitch = 0F;
+		}
+
 		double deltaYaw = (this.wheelAngle / 2F);
 		if(currentSpeed <= 2.5)
 		{
 			deltaYaw *= currentSpeed / 2.5;
 		}
+		
 		this.rotationYaw -= deltaYaw;
 		
-		this.motionY -= 0.05D;
 		this.wheelRotation += this.currentSpeed * 10F;
 		
 		if(this.currentSpeed > 0.01)
 		{
-			this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
-			this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			if(this.onGround) this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			if(wasOnSurface && this.angledSurface == null)
+			{
+				this.motionY = MathHelper.sin(-carPitch * 0.017453292F) * (currentSpeed / MAX_SPEED);
+			}
+			if(this.onGround) this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 		}
-
+		
 		this.isMoving = this.motionX >= 0.01 || this.motionX <= -0.01 || this.motionZ >= 0.01 || this.motionZ <= -0.01;
+		
+		this.motionY -= 0.1D;
 		
 		if(isMoving)
 		{
@@ -90,7 +128,7 @@ public class EntityCar extends Entity
 		
 		if(isCollidedHorizontally)
 		{
-			this.currentSpeed *= 0.5D;
+			this.currentSpeed *= 0.2D;
 		}
 		
 		if(currentSpeed > 3)
@@ -141,6 +179,47 @@ public class EntityCar extends Entity
 			}
 		}
 		return true;
+	}
+	
+	private void updateAngledSurface()
+	{
+		this.angledSurface = null;
+		
+		BlockPos pos = new BlockPos(posX, posY, posZ);
+		
+		AxisAlignedBB boundingBox = getEntityBoundingBox();
+		
+		if(checkForAngledBlockAt(pos)) return;
+	}
+	
+	private boolean checkForAngledBlockAt(BlockPos pos)
+	{
+		IBlockState inside = world.getBlockState(pos);
+		if(inside.getBlock() instanceof Angled)
+		{
+			this.angledSurface = (Angled) inside.getBlock();
+			this.angledFacing = inside.getValue(angledSurface.getDirectionProp());
+			return true;
+		}
+		
+		IBlockState below = world.getBlockState(pos.down());
+		if(below.getBlock() instanceof Angled)
+		{
+			this.angledSurface = (Angled) below.getBlock();
+			this.angledFacing = below.getValue(angledSurface.getDirectionProp());
+			return true;
+		}
+		return false;
+	}
+	
+	public Angled getAngledSurface() 
+	{
+		return angledSurface;
+	}
+	
+	public EnumFacing getAngledFacing() 
+	{
+		return angledFacing;
 	}
 
 	@Override
