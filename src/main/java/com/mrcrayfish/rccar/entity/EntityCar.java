@@ -12,11 +12,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -30,6 +34,8 @@ import net.minecraft.world.World;
 
 public class EntityCar extends Entity
 {
+	//private static final DataParameter<Float> CURRENT_SPEED = EntityDataManager.<Float>createKey(EntityCar.class, DataSerializers.FLOAT);
+	
 	private boolean isMoving = false;
 	private double currentSpeed;
 	
@@ -64,6 +70,12 @@ public class EntityCar extends Entity
 	}
 	
 	@Override
+	protected void entityInit() 
+	{
+		//this.dataManager.register(CURRENT_SPEED, 0F);
+	}
+	
+	@Override
 	public boolean canBeCollidedWith()
 	{
 		return true;
@@ -73,6 +85,15 @@ public class EntityCar extends Entity
 	public void onUpdate() 
 	{
 		super.onUpdate();
+		
+		/*if(!world.isRemote)
+		{
+			this.dataManager.set(CURRENT_SPEED, (float) this.currentSpeed);
+		}
+		else
+		{
+			this.currentSpeed = this.dataManager.get(CURRENT_SPEED);
+		}*/
 
 		this.prevCarPitch = this.carPitch;
 		this.prevWheelAngle = this.wheelAngle;
@@ -223,21 +244,17 @@ public class EntityCar extends Entity
 	}
 
 	@Override
-	protected void entityInit() 
-	{
-		
-	}
-
-	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) 
 	{
-		
+		this.currentSpeed = compound.getDouble("speed");
 	}
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) 
 	{
-		
+		compound.setDouble("speed", this.currentSpeed);
+		compound.setFloat("carPitch", this.carPitch);
+		compound.setFloat("prevCarPitch", this.prevCarPitch);
 	}
 	
 	@Override
