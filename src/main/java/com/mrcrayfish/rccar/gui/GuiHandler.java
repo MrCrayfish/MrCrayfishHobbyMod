@@ -17,9 +17,9 @@ public class GuiHandler implements IGuiHandler
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) 
 	{
-		if(ID == GuiCar.ID && entityId != -1)
+		if(ID == GuiCarSettings.ID && entityId != -1)
 		{
-			return new GuiCar(entityId);
+			return new GuiCarSettings(entityId);
 		}
 		return null;
 	}

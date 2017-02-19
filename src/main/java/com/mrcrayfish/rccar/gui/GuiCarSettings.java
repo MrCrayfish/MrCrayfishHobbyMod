@@ -8,20 +8,25 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class GuiCar extends GuiScreen
+public class GuiCarSettings extends GuiScreen
 {
 	public static final int ID = 1;
 	
-	private int entityId;
+	private static final ResourceLocation CAR_GUI_TEXTURE = new ResourceLocation("crccm:textures/gui/car_settings.png");
 	
+	private static final int X_SIZE = 256;
+	private static final int Y_SIZE = 112;
+	
+	private int entityId;
 	private EntityCar car;
 	private Render<EntityCar> render;
 	
 	private int rotation;
 	
-	public GuiCar(int entityId) 
+	public GuiCarSettings(int entityId) 
 	{
 		this.entityId = entityId;
 	}
@@ -46,13 +51,18 @@ public class GuiCar extends GuiScreen
 		this.drawDefaultBackground();
 		
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		int var5 = (this.width - 100) / 2;
-		int var6 = (this.height - 100) / 2;
+		int var5 = (this.width - this.X_SIZE) / 2;
+		int var6 = (this.height - this.Y_SIZE) / 2;
+        this.mc.getTextureManager().bindTexture(CAR_GUI_TEXTURE);
+        
+		GlStateManager.enableAlpha();
+		GlStateManager.enableBlend();
+        this.drawTexturedModalRect(var5, var6, 0, 0, this.X_SIZE, this.Y_SIZE);
 		
 		GlStateManager.pushMatrix();
 		{
-			double scale = 100;
-			GlStateManager.translate(this.width / 4, this.height / 2 + 20, 100);
+			double scale = 70;
+			GlStateManager.translate(var5 + 60, this.height / 2 + 20, 100);
 			GlStateManager.scale(-scale, -scale, -scale);
 			GlStateManager.rotate(180F, 0, 1, 0);
 			GlStateManager.rotate(15F, 1, 0, 0);

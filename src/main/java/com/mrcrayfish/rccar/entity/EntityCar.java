@@ -2,7 +2,7 @@ package com.mrcrayfish.rccar.entity;
 
 import com.mrcrayfish.rccar.MrCrayfishRCCarMod;
 import com.mrcrayfish.rccar.block.attribute.Angled;
-import com.mrcrayfish.rccar.gui.GuiCar;
+import com.mrcrayfish.rccar.gui.GuiCarSettings;
 import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
@@ -49,7 +49,7 @@ public class EntityCar extends Entity
 	public float prevWheelRotation;
 	
 	private Case currentCase = Case.STANDARD;
-	private ItemStack currentCaseItem = new ItemStack(ModItems.case_standard);
+	private ItemStack currentCaseItem = new ItemStack(ModItems.case_4wd);
 	private float wheelSize = 1.0F;
 	
 	private Angled angledSurface;
@@ -175,7 +175,7 @@ public class EntityCar extends Entity
 		if(world.isRemote && stack.getItem() == ModItems.wrench)
 		{
 			GuiHandler.setCar(getEntityId());
-			player.openGui(MrCrayfishRCCarMod.instance, GuiCar.ID, world, 0, 0, 0);
+			player.openGui(MrCrayfishRCCarMod.instance, GuiCarSettings.ID, world, 0, 0, 0);
 			return true;
 		}
 		if(!stack.isEmpty())
