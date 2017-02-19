@@ -87,6 +87,9 @@ public class RenderCar extends Render<EntityCar>
 			}
 			
 			GlStateManager.translate(0, 0, -0.4);
+			
+			double wheelScale = 3;
+			GlStateManager.translate(0, (wheelScale - 1.0) * 0.125, 0);
 
 			GlStateManager.pushMatrix();
 			{
@@ -95,9 +98,7 @@ public class RenderCar extends Render<EntityCar>
 			}
 			GlStateManager.popMatrix();
 			
-			
 			float wheelSpin = entity.prevWheelRotation + (entity.wheelRotation - entity.prevWheelRotation) * partialTicks;
-			double wheelScale = 1.5;
 			
 			GlStateManager.pushMatrix();
 			{
