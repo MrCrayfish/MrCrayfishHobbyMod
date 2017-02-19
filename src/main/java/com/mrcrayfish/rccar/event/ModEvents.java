@@ -6,11 +6,11 @@ import org.lwjgl.input.Keyboard;
 
 import com.mrcrayfish.rccar.RemoteMovementInput;
 import com.mrcrayfish.rccar.client.ClientProxy;
+import com.mrcrayfish.rccar.client.KeyBindingOverride;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.entity.EntityCar.Turn;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.network.PacketHandler;
-import com.mrcrayfish.rccar.network.message.MessageExplodeCar;
 import com.mrcrayfish.rccar.network.message.MessageMoveCar;
 import com.mrcrayfish.rccar.network.message.MessageTurnCar;
 
@@ -30,8 +30,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
@@ -78,9 +76,7 @@ public class ModEvents
 						{
 							if(renderCarView) 
 							{
-								renderEntity = null;
-								mc.setRenderViewEntity(player);
-								renderCarView = false;
+								setView(null);
 								return;
 							}
 							World world = mc.world;
@@ -89,9 +85,7 @@ public class ModEvents
 							{
 								if(car.getUniqueID().toString().equals(uuid))
 								{
-									renderEntity = car;
-									mc.setRenderViewEntity(renderEntity);
-									renderCarView = true;
+									setView(car);
 									break;
 								}
 							}
@@ -99,6 +93,24 @@ public class ModEvents
 					}
 				}
 			}
+		}
+	}
+	
+	public void setView(Entity entity)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		EntityPlayer player = mc.player;
+		if(entity != null)
+		{
+			renderEntity = entity;
+			mc.setRenderViewEntity(renderEntity);
+			renderCarView = true;
+		}
+		else
+		{
+			renderEntity = null;
+			mc.setRenderViewEntity(player);
+			renderCarView = false;
 		}
 	}
 	
@@ -114,13 +126,16 @@ public class ModEvents
 				player.movementInput = new RemoteMovementInput(player.movementInput);
 			}
 			
+			if(!(mc.gameSettings.keyBindAttack instanceof KeyBindingOverride))
+			{
+				mc.gameSettings.keyBindAttack = new KeyBindingOverride(mc.gameSettings.keyBindAttack);
+			}
+			
 			if(renderEntity != null)
 			{
 				if(player.getDistanceToEntity(renderEntity) >= 256F)
 				{
-					renderEntity = null;
-					mc.setRenderViewEntity(player);
-					renderCarView = false;
+					setView(player);
 				}
 			}
 		}
@@ -135,32 +150,7 @@ public class ModEvents
 			GlStateManager.rotate(5F, 1, 0, 0);
 		}
 	}
-	
-	@SubscribeEvent
-	public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
-	{
-		if(renderCarView) event.setCanceled(true);
-		System.out.println("Cancelling");
-	}
-	
-	@SubscribeEvent
-	public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
-	{
-		if(renderCarView) event.setCanceled(true);
-	}
-	
-	@SubscribeEvent
-	public void onRightClickBlock(PlayerInteractEvent.EntityInteract event)
-	{
-		if(renderCarView) event.setCanceled(true);
-	}
-	
-	@SubscribeEvent
-	public void onAttackEntity(AttackEntityEvent event)
-	{
-		if(renderCarView) event.setCanceled(true);
-	}
-	
+
 	@SubscribeEvent 
 	public void onRenderPlayer(RenderPlayerEvent.Pre event)
 	{
