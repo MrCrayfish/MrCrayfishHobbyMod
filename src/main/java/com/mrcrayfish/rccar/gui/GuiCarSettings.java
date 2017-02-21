@@ -37,6 +37,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	private boolean dirty = false;
 	
 	private int mouseClickedX;
+	private boolean canDrag = false;
+	private boolean dragging = false;
 	
 	/* Components */
 	private GuiButton btnCasePrev;
@@ -123,7 +125,15 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
 	{
 		super.mouseClicked(mouseX, mouseY, mouseButton);
-		this.mouseClickedX = mouseX;
+		
+		int startX = (this.width - this.X_SIZE) / 2;
+		int startY = (this.height - this.Y_SIZE) / 2;
+		
+		if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112))
+		{
+			canDrag = true;
+			mouseClickedX = mouseX;
+		}
 	}
 	
 	@Override
@@ -132,10 +142,11 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		int startX = (this.width - this.X_SIZE) / 2;
 		int startY = (this.height - this.Y_SIZE) / 2;
 		
-		if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112))
+		if((!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112) || dragging) && canDrag)
 		{
-			int deltaMouseX = this.mouseClickedX - mouseX;
+			int deltaMouseX = mouseClickedX - mouseX;
 			RenderCar.currentOffsetRotationYaw = -deltaMouseX;
+			dragging = true;
 		}
 	}
 	
@@ -145,6 +156,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		super.mouseReleased(mouseX, mouseY, state);
 		RenderCar.offsetRotationYaw += RenderCar.currentOffsetRotationYaw;
 		RenderCar.currentOffsetRotationYaw = 0F;
+		dragging = false;
+		canDrag = false;
 	}
 	
 	public void updateButtons()
@@ -174,6 +187,12 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		if(dirty) PacketHandler.INSTANCE.sendToServer(new MessageUpdateProperties(car));
 		RenderCar.offsetRotationYaw = 0F;
 		ModEvents.inSettingsGui = false;
+	}
+	
+	@Override
+	public boolean doesGuiPauseGame() 
+	{
+		return false;
 	}
 
 	@Override
