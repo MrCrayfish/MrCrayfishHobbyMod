@@ -2,6 +2,7 @@ package com.mrcrayfish.rccar.entity;
 
 import com.mrcrayfish.rccar.MrCrayfishRCCarMod;
 import com.mrcrayfish.rccar.block.attribute.Angled;
+import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.gui.GuiCarSettings;
 import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModItems;
@@ -176,6 +177,9 @@ public class EntityCar extends Entity
 		{
 			GuiHandler.setCar(getEntityId());
 			player.openGui(MrCrayfishRCCarMod.instance, GuiCarSettings.ID, world, 0, 0, 0);
+			ModEvents.setView(this);
+			Minecraft.getMinecraft().gameSettings.thirdPersonView = 2;
+			ModEvents.inSettingsGui = true;
 			return true;
 		}
 		if(!stack.isEmpty())
@@ -304,6 +308,12 @@ public class EntityCar extends Entity
 			wheelAngle = MathHelper.clamp(wheelAngle -= 2F, -25, 25);
 			break;
 		}
+	}
+	
+	@Override
+	public float getEyeHeight() 
+	{
+		return 1.2F;
 	}
 	
 	public float getWheelAngle() 

@@ -3,10 +3,13 @@ package com.mrcrayfish.rccar.gui;
 import java.awt.Color;
 import java.io.IOException;
 
+import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.entity.EntityCar.Case;
+import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.network.message.MessageUpdateProperties;
+import com.mrcrayfish.rccar.util.GuiHelper;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPageButtonList.GuiResponder;
@@ -32,6 +35,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	
 	private int rotation;
 	private boolean dirty = false;
+	
+	private int mouseClickedX;
 	
 	/* Components */
 	private GuiButton btnCasePrev;
@@ -76,7 +81,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) 
 	{
-		this.drawDefaultBackground();
+		//this.drawDefaultBackground();
 		
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		int startX = (this.width - this.X_SIZE) / 2;
@@ -86,19 +91,6 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
         this.drawTexturedModalRect(startX, startY, 0, 0, this.X_SIZE, this.Y_SIZE);
-		
-		GlStateManager.pushMatrix();
-		{
-			double scale = 70;
-			GlStateManager.translate(startX + 60, this.height / 2 + 30, 100);
-			GlStateManager.scale(-scale, -scale, -scale);
-			GlStateManager.rotate(180F, 0, 1, 0);
-			GlStateManager.rotate(15F, 1, 0, 0);
-			GlStateManager.rotate(rotation + partialTicks, 0, 1, 0);
-			GlStateManager.translate(0, 0, -0.4);
-			render.doRender(car, 0, 0, 0, 0F, 0F);
-		}
-		GlStateManager.popMatrix();
 		
 		this.drawCenteredString(fontRendererObj, this.car.getProperties().getCurrentCase().name(), startX + 193, startY + 10, Color.WHITE.getRGB());
 		
@@ -127,6 +119,34 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		updateButtons();
 	}
 	
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
+	{
+		super.mouseClicked(mouseX, mouseY, mouseButton);
+		this.mouseClickedX = mouseX;
+	}
+	
+	@Override
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) 
+	{
+		int startX = (this.width - this.X_SIZE) / 2;
+		int startY = (this.height - this.Y_SIZE) / 2;
+		
+		if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112))
+		{
+			int deltaMouseX = this.mouseClickedX - mouseX;
+			RenderCar.currentOffsetRotationYaw = -deltaMouseX;
+		}
+	}
+	
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) 
+	{
+		super.mouseReleased(mouseX, mouseY, state);
+		RenderCar.offsetRotationYaw += RenderCar.currentOffsetRotationYaw;
+		RenderCar.currentOffsetRotationYaw = 0F;
+	}
+	
 	public void updateButtons()
 	{
 		Case currentCase = this.car.getProperties().getCurrentCase();
@@ -152,6 +172,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	public void onGuiClosed() 
 	{
 		if(dirty) PacketHandler.INSTANCE.sendToServer(new MessageUpdateProperties(car));
+		RenderCar.offsetRotationYaw = 0F;
+		ModEvents.inSettingsGui = false;
 	}
 
 	@Override

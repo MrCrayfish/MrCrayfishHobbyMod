@@ -3,11 +3,13 @@ package com.mrcrayfish.rccar.client.render;
 import com.mrcrayfish.rccar.block.BlockRamp;
 import com.mrcrayfish.rccar.block.attribute.Angled;
 import com.mrcrayfish.rccar.entity.EntityCar;
+import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.init.ModItems;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -16,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -24,6 +27,9 @@ public class RenderCar extends Render<EntityCar>
 	public static EntityItem currentCase = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.case_standard));
 	public static final EntityItem BASE = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.car_base));
 	public static final EntityItem WHEEL = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.wheel));
+	
+	public static float offsetRotationYaw = 0F;
+	public static float currentOffsetRotationYaw = 0F;
 	
 	static
 	{
@@ -50,6 +56,9 @@ public class RenderCar extends Render<EntityCar>
 		
 		GlStateManager.pushMatrix();
 		{
+			GlStateManager.enableAlpha();
+	        GlStateManager.disableCull();
+	        
 			GlStateManager.translate(x, y, z);
 
 			float carPitch = car.prevCarPitch + (car.carPitch - car.prevCarPitch) * partialTicks;
@@ -85,8 +94,10 @@ public class RenderCar extends Render<EntityCar>
 			{
 				GlStateManager.rotate(-carPitch, 1, 0, 0);
 			}
-			
+
 			GlStateManager.translate(0, 0, -0.4);
+			
+			GlStateManager.rotate(offsetRotationYaw + currentOffsetRotationYaw, 0, 1, 0);
 			
 			double wheelScale = car.getProperties().getWheelSize();
 			GlStateManager.translate(0, (wheelScale - 1.0) * 0.125, 0);
@@ -162,11 +173,15 @@ public class RenderCar extends Render<EntityCar>
 					GlStateManager.translate(-0.0625 * wheelScale + 0.0625, -0.5375 * wheelScale, 0.0);
 					GlStateManager.scale(wheelScale, wheelScale, wheelScale);
 					Minecraft.getMinecraft().getRenderManager().doRenderEntity(WHEEL, 0, 0, 0, 0f, 0f, true);
-					RenderHelper.disableStandardItemLighting();
 				}
 				GlStateManager.popMatrix();
 			}
 			GlStateManager.popMatrix();
+			
+			GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+	        GlStateManager.enableTexture2D();
+	        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+	        GlStateManager.enableCull();
 		}
 		GlStateManager.popMatrix();
 		super.doRender(car, x, y, z, entityYaw, partialTicks);

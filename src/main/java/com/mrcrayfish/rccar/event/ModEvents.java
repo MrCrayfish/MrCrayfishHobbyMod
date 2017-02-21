@@ -39,7 +39,7 @@ public class ModEvents
 {
 	private static Entity renderEntity = null;
 	public static boolean renderCarView = false;
-	
+	public static boolean inSettingsGui = false;
 	public static boolean isRemoteControlling = false;
 	
 	private static KeyBindingOverride keyLeftClick;
@@ -100,7 +100,7 @@ public class ModEvents
 		}
 	}
 	
-	public void setView(Entity entity)
+	public static void setView(Entity entity)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer player = mc.player;
@@ -162,10 +162,18 @@ public class ModEvents
 	@SubscribeEvent
 	public void onCameraSetup(EntityViewRenderEvent.CameraSetup event)
 	{
-		if(renderCarView && Minecraft.getMinecraft().gameSettings.thirdPersonView == 1)
+		if(renderCarView)
 		{
-			GlStateManager.translate(0, -0.5, 2);
-			GlStateManager.rotate(5F, 1, 0, 0);
+			if(Minecraft.getMinecraft().gameSettings.thirdPersonView == 1)
+			{
+				GlStateManager.translate(0, 0, 2);
+				GlStateManager.rotate(5F, 1, 0, 0);
+			}
+			else if(inSettingsGui && Minecraft.getMinecraft().gameSettings.thirdPersonView == 2)
+			{
+				GlStateManager.translate(0.9, 1.1, -2);
+				GlStateManager.rotate(-25F, 1, 0, 0);
+			}
 		}
 	}
 
@@ -209,6 +217,7 @@ public class ModEvents
 					RenderHelper.enableGUIStandardItemLighting();
 					GlStateManager.enableAlpha();
 					playerModel.rightArmPose = ArmPose.BOW_AND_ARROW;
+					playerModel.isChild = false;
 					playerModel.render(mc.player, 0F, 0F, 0, 0f, mc.player.rotationPitch, 0.0625F);
 				}
 				GlStateManager.popMatrix();
