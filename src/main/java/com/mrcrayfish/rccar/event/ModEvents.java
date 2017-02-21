@@ -31,6 +31,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
@@ -41,8 +42,11 @@ public class ModEvents
 	
 	public static boolean isRemoteControlling = false;
 	
+	private static KeyBindingOverride keyLeftClick;
+	private static KeyBindingOverride keyRightClick;
+	
 	@SubscribeEvent
-	public void onInput(PlayerTickEvent event)
+	public void onPlayerTick(PlayerTickEvent event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer player = mc.player;
@@ -128,7 +132,12 @@ public class ModEvents
 			
 			if(!(mc.gameSettings.keyBindAttack instanceof KeyBindingOverride))
 			{
-				mc.gameSettings.keyBindAttack = new KeyBindingOverride(mc.gameSettings.keyBindAttack);
+				mc.gameSettings.keyBindAttack = keyLeftClick = new KeyBindingOverride(mc.gameSettings.keyBindAttack);
+			}
+			
+			if(!(mc.gameSettings.keyBindUseItem instanceof KeyBindingOverride))
+			{
+				mc.gameSettings.keyBindUseItem = keyRightClick = new KeyBindingOverride(mc.gameSettings.keyBindUseItem);
 			}
 			
 			if(renderEntity != null)
@@ -138,6 +147,15 @@ public class ModEvents
 					setView(player);
 				}
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onKeyInput(KeyInputEvent event)
+	{
+		if(keyLeftClick != null && keyLeftClick.isPressed())
+		{
+			System.out.println("Captured left click");
 		}
 	}
 

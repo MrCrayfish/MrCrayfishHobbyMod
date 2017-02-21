@@ -19,7 +19,7 @@ public class ModItems
 	
 	public static Item car_base;
 	public static Item case_standard;
-	public static Item case_different;
+	public static Item case_4wd;
 	
 	public static void init()
 	{
@@ -29,7 +29,7 @@ public class ModItems
 		wrench = registerPart("wrench");
 		car_base = registerPart("car_base");
 		case_standard = registerPart("case_standard");
-		case_different = registerPart("case_different");
+		case_4wd = registerPart("case_4wd_green");
 	}
 	
 	public static Item registerPart(String id)
@@ -45,7 +45,7 @@ public class ModItems
 		GameRegistry.register(wrench);
 		GameRegistry.register(car_base);
 		GameRegistry.register(case_standard);
-		GameRegistry.register(case_different);
+		GameRegistry.register(case_4wd);
 
 	}
 	
@@ -57,7 +57,7 @@ public class ModItems
 		registerRender(wrench);
 		registerRender(car_base);
 		registerRender(case_standard);
-		registerRender(case_different);
+		registerRender(case_4wd);
 	}
 	
 	private static void registerRender(Item item)

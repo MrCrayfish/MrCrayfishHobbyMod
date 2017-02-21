@@ -7,6 +7,7 @@ import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -48,12 +49,10 @@ public class EntityCar extends Entity
 	public float wheelRotation;
 	public float prevWheelRotation;
 	
-	private Case currentCase = Case.STANDARD;
-	private ItemStack currentCaseItem = new ItemStack(ModItems.case_4wd);
-	private float wheelSize = 1.0F;
-	
 	private Angled angledSurface;
 	private EnumFacing angledFacing;
+	
+	private Properties props;
 	
 	public EntityCar(World worldIn) 
 	{
@@ -61,6 +60,7 @@ public class EntityCar extends Entity
 		this.setSize(0.8F, 0.5F);
 		this.stepHeight = 0.5F;
 		this.onGround = true;
+		this.props = new Properties();
 	}
 	
 	public EntityCar(World worldIn, double x, double y, double z) 
@@ -247,6 +247,13 @@ public class EntityCar extends Entity
 	protected void readEntityFromNBT(NBTTagCompound compound) 
 	{
 		this.currentSpeed = compound.getDouble("speed");
+		this.carPitch = compound.getFloat("carPitch");
+		this.prevCarPitch = compound.getFloat("prevCarPitch");
+		
+		if(compound.hasKey("properties"))
+		{
+			this.props.readFromTag(compound.getCompoundTag("properties"));
+		}
 	}
 
 	@Override
@@ -255,6 +262,7 @@ public class EntityCar extends Entity
 		compound.setDouble("speed", this.currentSpeed);
 		compound.setFloat("carPitch", this.carPitch);
 		compound.setFloat("prevCarPitch", this.prevCarPitch);
+		compound.setTag("properties", props.writeToTag());
 	}
 	
 	@Override
@@ -303,9 +311,9 @@ public class EntityCar extends Entity
 		return wheelAngle;
 	}
 	
-	public ItemStack getCurrentCaseItem() 
+	public Properties getProperties()
 	{
-		return currentCaseItem;
+		return props;
 	}
 	
 	public static enum Turn 
@@ -315,7 +323,84 @@ public class EntityCar extends Entity
 	
 	public static enum Case
 	{
-		STANDARD,
-		DIFFERENT;
+		STANDARD(new ItemStack(ModItems.case_standard)),
+		FOUR_WD(new ItemStack(ModItems.case_4wd));
+		
+		private ItemStack stack;
+		
+		Case(ItemStack stack) 
+		{
+			this.stack = stack;
+		}
+		
+		public ItemStack getStack() 
+		{
+			return stack;
+		}
+	}
+	
+	public static class Properties
+	{
+		private Case currentCase = Case.STANDARD;
+		private float wheelSize = 1.0F;
+		
+		public Properties() {}
+		
+		public Properties(ByteBuf buf) 
+		{
+			this.readFromBuffer(buf);
+		}
+		
+		public Case getCurrentCase() 
+		{
+			return currentCase;
+		}
+		
+		public void setCurrentCase(Case currentCase) 
+		{
+			this.currentCase = currentCase;
+		}
+		
+		public float getWheelSize() 
+		{
+			return wheelSize;
+		}
+		
+		public void setWheelSize(float wheelSize) 
+		{
+			this.wheelSize = wheelSize;
+		}
+		
+		public void sync(Properties newProperties)
+		{
+			this.currentCase = newProperties.getCurrentCase();
+			this.wheelSize = newProperties.getWheelSize();
+		}
+		
+		public void readFromBuffer(ByteBuf buf)
+		{
+			this.currentCase = Case.values()[buf.readInt()];
+			this.wheelSize = buf.readFloat();
+		}
+		
+		public void writeToBuffer(ByteBuf buf)
+		{
+			buf.writeInt(this.currentCase.ordinal());
+			buf.writeFloat(this.wheelSize);
+		}
+		
+		public NBTTagCompound writeToTag()
+		{
+			NBTTagCompound tag = new NBTTagCompound();
+			tag.setInteger("currentCase", this.currentCase.ordinal());
+			tag.setFloat("wheelSize", this.wheelSize);
+			return tag;
+		}
+		
+		public void readFromTag(NBTTagCompound tag)
+		{
+			this.currentCase = Case.values()[tag.getInteger("currentCase")];
+			this.wheelSize = tag.getFloat("wheelSize");
+		}
 	}
 }

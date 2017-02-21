@@ -44,21 +44,21 @@ public class RenderCar extends Render<EntityCar>
 	}
 
 	@Override
-	public void doRender(EntityCar entity, double x, double y, double z, float entityYaw, float partialTicks) 
+	public void doRender(EntityCar car, double x, double y, double z, float entityYaw, float partialTicks) 
 	{
-		currentCase.setEntityItemStack(entity.getCurrentCaseItem());
+		currentCase.setEntityItemStack(car.getProperties().getCurrentCase().getStack());
 		
 		GlStateManager.pushMatrix();
 		{
 			GlStateManager.translate(x, y, z);
 
-			float carPitch = entity.prevCarPitch + (entity.carPitch - entity.prevCarPitch) * partialTicks;
+			float carPitch = car.prevCarPitch + (car.carPitch - car.prevCarPitch) * partialTicks;
 			
-			if(entity.onGround)
+			if(car.onGround)
 			{
-				if(entity.getAngledSurface() != null)
+				if(car.getAngledSurface() != null)
 				{
-					switch(entity.getAngledFacing())
+					switch(car.getAngledFacing())
 					{
 					case EAST:
 						GlStateManager.rotate(-carPitch, 0, 0, 1);
@@ -81,14 +81,14 @@ public class RenderCar extends Render<EntityCar>
 			
 			GlStateManager.rotate(180F - entityYaw, 0, 1, 0);
 			
-			if(!entity.onGround)
+			if(!car.onGround)
 			{
 				GlStateManager.rotate(-carPitch, 1, 0, 0);
 			}
 			
 			GlStateManager.translate(0, 0, -0.4);
 			
-			double wheelScale = 3;
+			double wheelScale = car.getProperties().getWheelSize();
 			GlStateManager.translate(0, (wheelScale - 1.0) * 0.125, 0);
 
 			GlStateManager.pushMatrix();
@@ -98,7 +98,7 @@ public class RenderCar extends Render<EntityCar>
 			}
 			GlStateManager.popMatrix();
 			
-			float wheelSpin = entity.prevWheelRotation + (entity.wheelRotation - entity.prevWheelRotation) * partialTicks;
+			float wheelSpin = car.prevWheelRotation + (car.wheelRotation - car.prevWheelRotation) * partialTicks;
 			
 			GlStateManager.pushMatrix();
 			{
@@ -106,8 +106,8 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
-					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
-					if(entity.isMoving())
+					GlStateManager.rotate(car.getWheelAngle(), 0, 1, 0);
+					if(car.isMoving())
 					{
 						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
@@ -121,8 +121,8 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
-					GlStateManager.rotate(entity.getWheelAngle(), 0, 1, 0);
-					if(entity.isMoving())
+					GlStateManager.rotate(car.getWheelAngle(), 0, 1, 0);
+					if(car.isMoving())
 					{
 						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
@@ -140,7 +140,7 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
-					if(entity.isMoving())
+					if(car.isMoving())
 					{
 						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
@@ -155,7 +155,7 @@ public class RenderCar extends Render<EntityCar>
 				
 				GlStateManager.pushMatrix();
 				{
-					if(entity.isMoving())
+					if(car.isMoving())
 					{
 						GlStateManager.rotate(-wheelSpin, 1, 0, 0);
 					}
@@ -169,6 +169,6 @@ public class RenderCar extends Render<EntityCar>
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.popMatrix();
-		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+		super.doRender(car, x, y, z, entityYaw, partialTicks);
 	}
 }
