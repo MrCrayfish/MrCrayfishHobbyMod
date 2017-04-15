@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
@@ -48,12 +49,22 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	private boolean canDrag = false;
 	private boolean dragging = false;
 	
-	/* Components */
-	private GuiButton btnCasePrev;
-	private GuiButton btnCaseNext;
+	private List<GuiButton> components;
+	private Page activePage = null;
+	private GuiButton selectedButton = null;
+	private GuiAdvancedButton btnExit;
+	
+	/* Main Page */
+	private Page pageMain;
+	private GuiAdvancedButton btnCasePrev;
+	private GuiAdvancedButton btnCaseNext;
 	private GuiSlider wheelSlider;
-	private GuiButton btnUpgrades;
-	private GuiButton btnAttachments;
+	private GuiAdvancedButton btnUpgrades;
+	private GuiAdvancedButton btnAttachments;
+	
+	/* Attachments Page */
+	private Page pageAttachments;
+	private GuiAdvancedButton btnBack;
 	
 	public GuiCarSettings(int entityId) 
 	{
@@ -63,25 +74,82 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	public void initGui() 
 	{
+		this.components = new ArrayList<>();
 		this.car = (EntityCar) mc.world.getEntityByID(entityId);
 		this.render = mc.getRenderManager().getEntityRenderObject(car);
 		
 		int startX = (this.width - this.X_SIZE) / 2;
 		int startY = (this.height - this.Y_SIZE) / 2;
 		
-		this.btnCasePrev = new GuiButton(1, startX + 75, startY + 5, 20, 20, "<");
+		this.btnExit = new GuiAdvancedButton(startX + 171, startY - 15, 20, 16, "X");
+		this.btnExit.setListener(() -> {
+			this.mc.displayGuiScreen((GuiScreen)null);
+            if (this.mc.currentScreen == null)
+            {
+                this.mc.setIngameFocus();
+            }
+            return true;
+		});
+		
+		this.pageMain = new Page();
+		this.pageMain.setExtendedRender((s, e) -> 
+		{
+			this.drawCenteredString(fontRendererObj, I18n.format(String.format("case.%s.name", this.car.getProperties().getCurrentCase().id)), startX + 132, startY + 10, Color.WHITE.getRGB());
+		});
+		
+		this.btnCasePrev = new GuiAdvancedButton(startX + 75, startY + 5, 20, 20, "<");
 		this.btnCasePrev.enabled = false;
-		this.buttonList.add(this.btnCasePrev);
+		this.btnCasePrev.setListener(() -> 
+		{
+			Case currentCase = this.car.getProperties().getCurrentCase();
+			if(currentCase.ordinal() > 0)
+			{
+				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() - 1));
+			}
+			updateButtons();
+			return true;
+		});
+		this.pageMain.add(this.btnCasePrev);
+
+		this.btnCaseNext = new GuiAdvancedButton(startX + 171, startY + 5, 20, 20, ">");
+		this.btnCaseNext.setListener(() -> 
+		{
+			Case currentCase = this.car.getProperties().getCurrentCase();
+			if(currentCase.ordinal() < ModCases.length() - 1)
+			{
+				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() + 1));
+			}
+			updateButtons();
+			return true;
+		});
+		this.pageMain.add(this.btnCaseNext);
 		
-		this.btnCaseNext = new GuiButton(2, startX + 171, startY + 5, 20, 20, ">");
-		this.buttonList.add(this.btnCaseNext);
-		
-		this.wheelSlider = new GuiSlider(this, 3, startX + 75, startY + 30, "Wheel Size", 1.0F, 3.0F, car.getProperties().getWheelSize(), this);
+		this.wheelSlider = new GuiSlider(this, 3, startX + 75, startY + 28, "Wheel Size", 1.0F, 3.0F, car.getProperties().getWheelSize(), this);
 		this.wheelSlider.width = 116;
-		this.buttonList.add(this.wheelSlider);
+		this.pageMain.add(this.wheelSlider);
 		
-		this.btnAttachments = new GuiButton(4, 0, 0, "Attachments");
-		this.buttonList.add(this.btnAttachments);
+		this.btnUpgrades = new GuiAdvancedButton(startX + 75, startY + 51, 116, 20, "Upgrades");
+		this.pageMain.add(this.btnUpgrades);
+		
+		this.btnAttachments = new GuiAdvancedButton(startX + 75, startY + 74, 116, 20, "Attachments");
+		this.btnAttachments.setListener(() -> 
+		{
+			setActivePage(this.pageAttachments);
+			return true;
+		});
+		this.pageMain.add(this.btnAttachments);
+		
+		setActivePage(this.pageMain);
+		
+		this.pageAttachments = new Page();
+		
+		this.btnBack = new GuiAdvancedButton(startX + 75, startY - 15, 20, 16, "<");
+		this.btnBack.setListener(() -> 
+		{
+			setActivePage(this.pageMain);
+			return true;
+		});
+		this.pageAttachments.add(btnBack);
 		
 		updateButtons();
 	}
@@ -106,48 +174,60 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		GlStateManager.enableBlend();
         this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.X_SIZE, this.Y_SIZE);
 
-		this.drawCenteredString(fontRendererObj, I18n.format(String.format("case.%s.name", this.car.getProperties().getCurrentCase().id)), startX + 132, startY + 10, Color.WHITE.getRGB());
-		
+        this.drawCenteredString(fontRendererObj, "Workshop", startX + 132, startY - 12, Color.WHITE.getRGB());
+        
+        this.btnExit.drawButton(this.mc, mouseX, mouseY);
+        
+        for(int i = 0; i < components.size(); i++)
+		{
+			GuiButton button = components.get(i);
+			button.drawButton(this.mc, mouseX, mouseY);
+		}
+
+        if(this.activePage != null)
+        {
+        	ExtendedRender render = this.activePage.getExtendedRender();
+        	if(render != null)
+        	{
+        		render.render(startX, startY);
+        	}
+        }
+
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
-	
-	@Override
-	protected void actionPerformed(GuiButton button) throws IOException 
-	{
-		if(button.id == btnCaseNext.id)
-		{
-			Case currentCase = this.car.getProperties().getCurrentCase();
-			if(currentCase.ordinal() < ModCases.length() - 1)
-			{
-				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() + 1));
-			}
-		}
-		else if(button.id == btnCasePrev.id)
-		{
-			Case currentCase = this.car.getProperties().getCurrentCase();
-			if(currentCase.ordinal() > 0)
-			{
-				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() - 1));
-			}
-		}
-		updateButtons();
-	}
-	
+
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
 	{
-		super.mouseClicked(mouseX, mouseY, mouseButton);
-		
 		int startX = (this.width - this.X_SIZE) / 2;
 		int startY = (this.height - this.Y_SIZE) / 2;
-		
-		if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, 126, 112))
-		{
-			canDrag = true;
-			mouseClickedX = mouseX;
-		}
+
+		if (mouseButton == 0)
+        {
+			if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, 126, 112))
+			{
+				canDrag = true;
+				mouseClickedX = mouseX;
+			}
+			
+			if(this.btnExit.mousePressed(this.mc, mouseX, mouseY))
+			{
+				this.btnExit.playPressSound(mc.getSoundHandler());
+				this.selectedButton = this.btnExit;
+			}
+			
+			for(int i = 0; i < components.size(); i++)
+			{
+				GuiButton button = components.get(i);
+				if(button.mousePressed(this.mc, mouseX, mouseY))
+				{
+					button.playPressSound(mc.getSoundHandler());
+					this.selectedButton = button;
+				}
+			}
+        }
 	}
-	
+
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) 
 	{
@@ -165,7 +245,12 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state) 
 	{
-		super.mouseReleased(mouseX, mouseY, state);
+		if (this.selectedButton != null && state == 0)
+        {
+            this.selectedButton.mouseReleased(mouseX, mouseY);
+            this.selectedButton = null;
+        }
+		
 		RenderCar.offsetRotationYaw += RenderCar.currentOffsetRotationYaw;
 		RenderCar.currentOffsetRotationYaw = 0F;
 		dragging = false;
@@ -241,29 +326,91 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		return null;
 	}
 	
+	public void setActivePage(Page page) 
+	{
+		if(this.activePage != null) 
+		{
+			this.activePage.hide(components);
+		}
+		page.show(components);
+		this.activePage = page;
+	}
+	
 	public static class Page
 	{
 		private List<GuiButton> components = new ArrayList<GuiButton>();
+		
+		private ExtendedRender render;
 		
 		public void add(GuiButton component)
 		{
 			this.components.add(component);
 		}
-		
-		public void hide()
+
+		public void show(List<GuiButton> buttonList)
 		{
 			for(GuiButton component : components)
 			{
-				component.visible = false;
+				buttonList.add(component);
 			}
 		}
 		
-		public void show()
+		public void hide(List<GuiButton> buttonList)
 		{
 			for(GuiButton component : components)
 			{
-				component.visible = true;
+				buttonList.remove(component);
 			}
 		}
+		
+		public ExtendedRender getExtendedRender() 
+		{
+			return render;
+		}
+		
+		public void setExtendedRender(ExtendedRender render) 
+		{
+			this.render = render;
+		}
+	}
+	
+	public static class GuiAdvancedButton extends GuiButton
+	{
+		private ClickListener listener;
+		
+		public GuiAdvancedButton(int x, int y, String buttonText) 
+		{
+			super(0, x, y, buttonText);
+		}
+		
+		public GuiAdvancedButton(int x, int y, int widthIn, int heightIn, String buttonText) 
+		{
+			super(0, x, y, widthIn, heightIn, buttonText);
+		}
+		
+		@Override
+		public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) 
+		{
+			if(listener != null && super.mousePressed(mc, mouseX, mouseY))
+			{
+				return listener.handle();
+			}
+			return false;
+		}
+		
+		public void setListener(ClickListener listener) 
+		{
+			this.listener = listener;
+		}
+	}
+	
+	public interface ClickListener 
+	{
+		public boolean handle();
+	}
+	
+	public interface ExtendedRender
+	{
+		public void render(int startX, int startY);
 	}
 }
