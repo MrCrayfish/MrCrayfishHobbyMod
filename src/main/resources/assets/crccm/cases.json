@@ -1,0 +1,44 @@
+[
+    {
+        "id": "standard",
+        "left_attachment": {
+            "enabled": true,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "right_attachment": {
+            "enabled": true,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "top_attachment": {
+            "enabled": true,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        }
+    },
+    {
+        "id": "buggy",
+        "left_attachment": {
+            "enabled": true,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "right_attachment": {
+            "enabled": true,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "top_attachment": {
+            "enabled": false,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        }
+    }
+]

@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
 public class ModEvents 
 {
-	private static Entity renderEntity = null;
+	public static Entity renderEntity = null;
 	public static boolean renderCarView = false;
 	public static boolean inSettingsGui = false;
 	public static boolean isRemoteControlling = false;
@@ -166,8 +166,8 @@ public class ModEvents
 		{
 			if(Minecraft.getMinecraft().gameSettings.thirdPersonView == 1)
 			{
-				GlStateManager.translate(0, 0, 2);
-				GlStateManager.rotate(5F, 1, 0, 0);
+				//GlStateManager.translate(0, 0, 2);
+				//GlStateManager.rotate(5F, 1, 0, 0);
 			}
 			else if(inSettingsGui && Minecraft.getMinecraft().gameSettings.thirdPersonView == 2)
 			{
@@ -206,7 +206,6 @@ public class ModEvents
 				double deltaX = mc.player.posX - renderEntity.prevPosX - (renderEntity.posX - renderEntity.prevPosX) * event.getPartialTicks();
 				double deltaY = mc.player.posY - renderEntity.prevPosY - (renderEntity.posY - renderEntity.prevPosY) * event.getPartialTicks();
 				double deltaZ = mc.player.posZ - renderEntity.prevPosZ - (renderEntity.posZ - renderEntity.prevPosZ) * event.getPartialTicks();
-				
 				
 				GlStateManager.pushMatrix();
 				{

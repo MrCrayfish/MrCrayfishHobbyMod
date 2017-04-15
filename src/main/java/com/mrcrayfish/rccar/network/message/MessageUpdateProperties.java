@@ -1,13 +1,13 @@
 package com.mrcrayfish.rccar.network.message;
 
 import com.mrcrayfish.rccar.entity.EntityCar;
-import com.mrcrayfish.rccar.entity.EntityCar.Case;
 import com.mrcrayfish.rccar.entity.EntityCar.Properties;
 import com.mrcrayfish.rccar.network.PacketHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -30,14 +30,14 @@ public class MessageUpdateProperties  implements IMessage, IMessageHandler<Messa
 	public void toBytes(ByteBuf buf) 
 	{
 		buf.writeInt(this.entityId);
-		this.props.writeToBuffer(buf);
+		ByteBufUtils.writeTag(buf, this.props.writeToTag());
 	}
-	
+
 	@Override
 	public void fromBytes(ByteBuf buf) 
 	{
 		this.entityId = buf.readInt();
-		this.props = new Properties(buf);
+		this.props = new Properties(ByteBufUtils.readTag(buf));
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class MessageUpdateProperties  implements IMessage, IMessageHandler<Messa
 		{
 			EntityCar car = (EntityCar) entity;
 			car.getProperties().sync(message.props);
-			PacketHandler.INSTANCE.sendToAllAround(new MessageSyncProperties(car), new TargetPoint(car.dimension, car.posX, car.posY,	car.posZ, 64));
+			PacketHandler.INSTANCE.sendToAllAround(new MessageSyncProperties(car), new TargetPoint(car.dimension, car.posX, car.posY, car.posZ, 64));
 		}
 		return null;
 	}

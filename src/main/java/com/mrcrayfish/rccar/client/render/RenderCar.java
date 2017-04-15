@@ -2,6 +2,7 @@ package com.mrcrayfish.rccar.client.render;
 
 import com.mrcrayfish.rccar.block.BlockRamp;
 import com.mrcrayfish.rccar.block.attribute.Angled;
+import com.mrcrayfish.rccar.client.ClientProxy;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.init.ModItems;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -24,7 +26,7 @@ import net.minecraft.world.World;
 
 public class RenderCar extends Render<EntityCar>
 {
-	public static EntityItem currentCase = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.case_standard));
+	public static EntityItem currentCase = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(Items.APPLE));
 	public static final EntityItem BASE = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.car_base));
 	public static final EntityItem WHEEL = new EntityItem(Minecraft.getMinecraft().world, 0, 0, 0, new ItemStack(ModItems.wheel));
 	
@@ -52,15 +54,13 @@ public class RenderCar extends Render<EntityCar>
 	@Override
 	public void doRender(EntityCar car, double x, double y, double z, float entityYaw, float partialTicks) 
 	{
-		currentCase.setEntityItemStack(car.getProperties().getCurrentCase().getStack());
+		currentCase.setEntityItemStack(car.getProperties().getCurrentCaseStack());
 		
 		GlStateManager.pushMatrix();
 		{
-			GlStateManager.enableAlpha();
-	        GlStateManager.disableCull();
-	        
 			GlStateManager.translate(x, y, z);
 
+			float carYaw = car.prevCarYaw + (car.carYaw - car.prevCarYaw) * partialTicks;
 			float carPitch = car.prevCarPitch + (car.carPitch - car.prevCarPitch) * partialTicks;
 			
 			if(car.onGround)
@@ -88,7 +88,7 @@ public class RenderCar extends Render<EntityCar>
 				}
 			}
 			
-			GlStateManager.rotate(180F - entityYaw, 0, 1, 0);
+			GlStateManager.rotate(180F - carYaw, 0, 1, 0);
 			
 			if(!car.onGround)
 			{
@@ -97,7 +97,10 @@ public class RenderCar extends Render<EntityCar>
 
 			GlStateManager.translate(0, 0, -0.4);
 			
-			GlStateManager.rotate(offsetRotationYaw + currentOffsetRotationYaw, 0, 1, 0);
+			if(ModEvents.renderEntity == car)
+			{
+				GlStateManager.rotate(offsetRotationYaw + currentOffsetRotationYaw, 0, 1, 0);
+			}
 			
 			double wheelScale = car.getProperties().getWheelSize();
 			GlStateManager.translate(0, (wheelScale - 1.0) * 0.125, 0);
@@ -110,6 +113,10 @@ public class RenderCar extends Render<EntityCar>
 			GlStateManager.popMatrix();
 			
 			float wheelSpin = car.prevWheelRotation + (car.wheelRotation - car.prevWheelRotation) * partialTicks;
+			
+			GlStateManager.disableLighting();
+			GlStateManager.disableBlend();
+			GlStateManager.enableAlpha();
 			
 			GlStateManager.pushMatrix();
 			{
@@ -177,13 +184,9 @@ public class RenderCar extends Render<EntityCar>
 				GlStateManager.popMatrix();
 			}
 			GlStateManager.popMatrix();
-			
-			GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-	        GlStateManager.enableTexture2D();
-	        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-	        GlStateManager.enableCull();
 		}
 		GlStateManager.popMatrix();
-		super.doRender(car, x, y, z, entityYaw, partialTicks);
+		
+		//super.doRender(car, x, y, z, entityYaw, partialTicks);
 	}
 }

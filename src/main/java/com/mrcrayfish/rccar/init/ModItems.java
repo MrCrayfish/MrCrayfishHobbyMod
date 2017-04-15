@@ -1,6 +1,7 @@
 package com.mrcrayfish.rccar.init;
 
 import com.mrcrayfish.rccar.Reference;
+import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.item.ItemCar;
 import com.mrcrayfish.rccar.item.ItemController;
 import com.mrcrayfish.rccar.item.ItemWheel;
@@ -16,10 +17,7 @@ public class ModItems
 	public static Item car;
 	public static Item wheel;
 	public static Item wrench;
-	
 	public static Item car_base;
-	public static Item case_standard;
-	public static Item case_4wd;
 	
 	public static void init()
 	{
@@ -28,8 +26,8 @@ public class ModItems
 		wheel = new ItemWheel();
 		wrench = registerPart("wrench");
 		car_base = registerPart("car_base");
-		case_standard = registerPart("case_standard");
-		case_4wd = registerPart("case_4wd_green");
+		
+		ModCases.init();
 	}
 	
 	public static Item registerPart(String id)
@@ -44,9 +42,8 @@ public class ModItems
 		GameRegistry.register(wheel);
 		GameRegistry.register(wrench);
 		GameRegistry.register(car_base);
-		GameRegistry.register(case_standard);
-		GameRegistry.register(case_4wd);
-
+		
+		ModCases.CASES.forEach(c -> GameRegistry.register(c.item));
 	}
 	
 	public static void registerRenders()
@@ -56,8 +53,8 @@ public class ModItems
 		registerRender(wheel);
 		registerRender(wrench);
 		registerRender(car_base);
-		registerRender(case_standard);
-		registerRender(case_4wd);
+		
+		ModCases.CASES.forEach(c -> registerRender(c.item));
 	}
 	
 	private static void registerRender(Item item)

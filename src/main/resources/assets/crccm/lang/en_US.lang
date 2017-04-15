@@ -2,3 +2,6 @@ item.controller.name=Remote Controller
 item.car.name=RC Car
 
 itemGroup.tabJax=MrCrayfish's RC Car Mod
+
+case.standard.name=Standard
+case.buggy.name=Buggy

@@ -1,12 +1,22 @@
 package com.mrcrayfish.rccar.entity;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.mrcrayfish.rccar.MrCrayfishRCCarMod;
+import com.mrcrayfish.rccar.Reference;
 import com.mrcrayfish.rccar.block.attribute.Angled;
 import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.gui.GuiCarSettings;
 import com.mrcrayfish.rccar.gui.GuiHandler;
+import com.mrcrayfish.rccar.init.ModCases;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
+import com.mrcrayfish.rccar.object.Case;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -25,6 +35,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -37,12 +48,14 @@ import net.minecraft.world.World;
 public class EntityCar extends Entity
 {
 	//private static final DataParameter<Float> CURRENT_SPEED = EntityDataManager.<Float>createKey(EntityCar.class, DataSerializers.FLOAT);
+
+	public static final double MAX_SPEED = 10;
 	
 	private boolean isMoving = false;
 	private double currentSpeed;
 	
-	public static final double MAX_SPEED = 10;
-	
+	public float carYaw;
+	public float prevCarYaw;
 	public float carPitch;
 	public float prevCarPitch;
 	private float wheelAngle;
@@ -62,6 +75,7 @@ public class EntityCar extends Entity
 		this.stepHeight = 0.5F;
 		this.onGround = true;
 		this.props = new Properties();
+		this.props.setCurrentCase(ModCases.getCase("standard"));
 	}
 	
 	public EntityCar(World worldIn, double x, double y, double z) 
@@ -95,11 +109,12 @@ public class EntityCar extends Entity
 		{
 			this.currentSpeed = this.dataManager.get(CURRENT_SPEED);
 		}*/
-
+		
+		this.prevCarYaw = this.carYaw;
 		this.prevCarPitch = this.carPitch;
 		this.prevWheelAngle = this.wheelAngle;
-		this.prevWheelRotation = this.wheelRotation;
-		
+		this.prevWheelRotation = this.wheelRotation;	
+
 		boolean wasOnSurface = this.angledSurface != null;
 		this.updateAngledSurface();
 		
@@ -125,18 +140,18 @@ public class EntityCar extends Entity
 			deltaYaw *= currentSpeed / 2.5;
 		}
 		
-		this.rotationYaw -= deltaYaw;
+		this.carYaw -= deltaYaw;
 		
 		this.wheelRotation += this.currentSpeed * 10F;
 		
 		if(this.currentSpeed > 0.01)
 		{
-			if(this.onGround) this.motionX = -Math.sin((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			if(this.onGround) this.motionX = -Math.sin((double) ((carYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 			if(wasOnSurface && this.angledSurface == null)
 			{
 				this.motionY = MathHelper.sin(-carPitch * 0.017453292F) * (currentSpeed / MAX_SPEED);
 			}
-			if(this.onGround) this.motionZ = Math.cos((double) ((rotationYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
+			if(this.onGround) this.motionZ = Math.cos((double) ((carYaw + wheelAngle) * (float) Math.PI / 180.0F)) * currentSpeed / 16D;
 		}
 		
 		this.isMoving = this.motionX >= 0.01 || this.motionX <= -0.01 || this.motionZ >= 0.01 || this.motionZ <= -0.01;
@@ -157,7 +172,7 @@ public class EntityCar extends Entity
 		{
 			this.createRunningParticles();
 		}
-		
+
 		this.currentSpeed *= 0.95D;
 		this.wheelAngle *= 0.9F;
 	}
@@ -313,7 +328,7 @@ public class EntityCar extends Entity
 	@Override
 	public float getEyeHeight() 
 	{
-		return 1.2F;
+		return 0.75F;
 	}
 	
 	public float getWheelAngle() 
@@ -330,45 +345,34 @@ public class EntityCar extends Entity
 	{
 		LEFT, RIGHT;
 	}
-	
-	public static enum Case
-	{
-		STANDARD(new ItemStack(ModItems.case_standard)),
-		FOUR_WD(new ItemStack(ModItems.case_4wd));
-		
-		private ItemStack stack;
-		
-		Case(ItemStack stack) 
-		{
-			this.stack = stack;
-		}
-		
-		public ItemStack getStack() 
-		{
-			return stack;
-		}
-	}
-	
+
 	public static class Properties
 	{
-		private Case currentCase = Case.STANDARD;
+		private Case currentCase;
+		private ItemStack currentCaseStack;
 		private float wheelSize = 1.0F;
 		
 		public Properties() {}
 		
-		public Properties(ByteBuf buf) 
+		public Properties(NBTTagCompound tag) 
 		{
-			this.readFromBuffer(buf);
+			readFromTag(tag);
 		}
-		
+
 		public Case getCurrentCase() 
 		{
 			return currentCase;
 		}
 		
-		public void setCurrentCase(Case currentCase) 
+		public void setCurrentCase(Case newCase) 
 		{
-			this.currentCase = currentCase;
+			this.currentCase = newCase;
+			this.currentCaseStack = new ItemStack(newCase.item);
+		}
+		
+		public ItemStack getCurrentCaseStack() 
+		{
+			return currentCaseStack;
 		}
 		
 		public float getWheelSize() 
@@ -387,29 +391,17 @@ public class EntityCar extends Entity
 			this.wheelSize = newProperties.getWheelSize();
 		}
 		
-		public void readFromBuffer(ByteBuf buf)
-		{
-			this.currentCase = Case.values()[buf.readInt()];
-			this.wheelSize = buf.readFloat();
-		}
-		
-		public void writeToBuffer(ByteBuf buf)
-		{
-			buf.writeInt(this.currentCase.ordinal());
-			buf.writeFloat(this.wheelSize);
-		}
-		
 		public NBTTagCompound writeToTag()
 		{
 			NBTTagCompound tag = new NBTTagCompound();
-			tag.setInteger("currentCase", this.currentCase.ordinal());
+			tag.setString("currentCase", this.currentCase.id);
 			tag.setFloat("wheelSize", this.wheelSize);
 			return tag;
 		}
 		
 		public void readFromTag(NBTTagCompound tag)
 		{
-			this.currentCase = Case.values()[tag.getInteger("currentCase")];
+			this.currentCase = ModCases.getCase(tag.getString("currentCase"));
 			this.wheelSize = tag.getFloat("wheelSize");
 		}
 	}
