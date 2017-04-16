@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.event.ModEvents;
+import com.mrcrayfish.rccar.gui.component.InventorySelector;
+import com.mrcrayfish.rccar.gui.component.Page;
+import com.mrcrayfish.rccar.gui.interfaces.ExtendedRender;
 import com.mrcrayfish.rccar.init.ModCases;
 import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.network.message.MessageUpdateProperties;
@@ -24,26 +26,23 @@ import net.minecraft.client.gui.GuiSlider.FormatHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Language;
-import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.LanguageMap;
 
 public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHelper
 {
 	public static final int ID = 1;
-	
+
 	private static final ResourceLocation CAR_GUI_TEXTURE = new ResourceLocation("crccm:textures/gui/car_settings.png");
-	
-	private static final int X_SIZE = 126;
-	private static final int Y_SIZE = 112;
-	
+	private static final int GUI_CAR_X_SIZE = 126;
+	private static final int GUI_CAR_Y_SIZE = 112;
+
 	private int entityId;
 	private EntityCar car;
 	private Render<EntityCar> render;
 	
 	private int rotation;
 	private boolean dirty = false;
+	private InventorySelector selector = null;
 	
 	private int mouseClickedX;
 	private boolean canDrag = false;
@@ -52,7 +51,10 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	private List<GuiButton> components;
 	private Page activePage = null;
 	private GuiButton selectedButton = null;
+	
+	/* Universal Components */
 	private GuiAdvancedButton btnExit;
+	private GuiAdvancedButton btnBack;
 	
 	/* Main Page */
 	private Page pageMain;
@@ -64,7 +66,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	
 	/* Attachments Page */
 	private Page pageAttachments;
-	private GuiAdvancedButton btnBack;
+	private GuiAdvancedButton btnAttachmentHood;
 	
 	public GuiCarSettings(int entityId) 
 	{
@@ -78,11 +80,19 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		this.car = (EntityCar) mc.world.getEntityByID(entityId);
 		this.render = mc.getRenderManager().getEntityRenderObject(car);
 		
-		int startX = (this.width - this.X_SIZE) / 2;
-		int startY = (this.height - this.Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
+		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
+		
+		this.btnBack = new GuiAdvancedButton(startX + 75, startY - 15, 20, 16, "<");
+		this.btnBack.setListener(() -> 
+		{
+			setActivePage(this.pageMain);
+			return true;
+		});
 		
 		this.btnExit = new GuiAdvancedButton(startX + 171, startY - 15, 20, 16, "X");
-		this.btnExit.setListener(() -> {
+		this.btnExit.setListener(() -> 
+		{
 			this.mc.displayGuiScreen((GuiScreen)null);
             if (this.mc.currentScreen == null)
             {
@@ -143,14 +153,15 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		
 		this.pageAttachments = new Page();
 		
-		this.btnBack = new GuiAdvancedButton(startX + 75, startY - 15, 20, 16, "<");
-		this.btnBack.setListener(() -> 
-		{
-			setActivePage(this.pageMain);
+		this.btnAttachmentHood = new GuiAdvancedButton(startX + 75, startY + 5, 90, 20, "Hood");
+		this.btnAttachmentHood.setListener(() -> {
+			this.selector = new InventorySelector(this);
 			return true;
 		});
-		this.pageAttachments.add(btnBack);
-		
+		this.pageAttachments.add(this.btnAttachmentHood);
+
+		this.pageAttachments.add(this.btnBack);
+
 		updateButtons();
 	}
 	
@@ -164,15 +175,13 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) 
 	{
-		//this.drawDefaultBackground();
-		
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		int startX = (this.width - this.X_SIZE) / 2;
-		int startY = (this.height - this.Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
+		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
         this.mc.getTextureManager().bindTexture(CAR_GUI_TEXTURE);
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
-        this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.X_SIZE, this.Y_SIZE);
+        this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.GUI_CAR_X_SIZE, this.GUI_CAR_Y_SIZE);
 
         this.drawCenteredString(fontRendererObj, "Workshop", startX + 132, startY - 12, Color.WHITE.getRGB());
         
@@ -193,17 +202,26 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
         	}
         }
 
-		super.drawScreen(mouseX, mouseY, partialTicks);
+        if(selector != null)
+        {
+        	selector.render(mouseX, mouseY);
+        }
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
 	{
-		int startX = (this.width - this.X_SIZE) / 2;
-		int startY = (this.height - this.Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
+		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
 
 		if (mouseButton == 0)
         {
+			if(selector != null)
+			{
+				selector.onClick(mouseX, mouseY);
+				return;
+			}
+			
 			if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, 126, 112))
 			{
 				canDrag = true;
@@ -231,8 +249,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) 
 	{
-		int startX = (this.width - this.X_SIZE) / 2;
-		int startY = (this.height - this.Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
+		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
 		
 		if((!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112) || dragging) && canDrag)
 		{
@@ -336,81 +354,13 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		this.activePage = page;
 	}
 	
-	public static class Page
+	public void setSelectedButton(GuiButton selectedButton) 
 	{
-		private List<GuiButton> components = new ArrayList<GuiButton>();
-		
-		private ExtendedRender render;
-		
-		public void add(GuiButton component)
-		{
-			this.components.add(component);
-		}
+		this.selectedButton = selectedButton;
+	}
 
-		public void show(List<GuiButton> buttonList)
-		{
-			for(GuiButton component : components)
-			{
-				buttonList.add(component);
-			}
-		}
-		
-		public void hide(List<GuiButton> buttonList)
-		{
-			for(GuiButton component : components)
-			{
-				buttonList.remove(component);
-			}
-		}
-		
-		public ExtendedRender getExtendedRender() 
-		{
-			return render;
-		}
-		
-		public void setExtendedRender(ExtendedRender render) 
-		{
-			this.render = render;
-		}
-	}
-	
-	public static class GuiAdvancedButton extends GuiButton
+	public void closeInventorySelector()
 	{
-		private ClickListener listener;
-		
-		public GuiAdvancedButton(int x, int y, String buttonText) 
-		{
-			super(0, x, y, buttonText);
-		}
-		
-		public GuiAdvancedButton(int x, int y, int widthIn, int heightIn, String buttonText) 
-		{
-			super(0, x, y, widthIn, heightIn, buttonText);
-		}
-		
-		@Override
-		public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) 
-		{
-			if(listener != null && super.mousePressed(mc, mouseX, mouseY))
-			{
-				return listener.handle();
-			}
-			return false;
-		}
-		
-		public void setListener(ClickListener listener) 
-		{
-			this.listener = listener;
-		}
-	}
-	
-	public interface ClickListener 
-	{
-		public boolean handle();
-	}
-	
-	public interface ExtendedRender
-	{
-		public void render(int startX, int startY);
+		this.selector = null;
 	}
 }
