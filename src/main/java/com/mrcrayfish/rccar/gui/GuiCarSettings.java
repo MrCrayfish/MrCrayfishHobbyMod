@@ -33,8 +33,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	public static final int ID = 1;
 
 	private static final ResourceLocation CAR_GUI_TEXTURE = new ResourceLocation("crccm:textures/gui/car_settings.png");
-	private static final int GUI_CAR_X_SIZE = 126;
-	private static final int GUI_CAR_Y_SIZE = 112;
+	private static final int GUI_WIDTH = 126;
+	private static final int GUI_HEIGHT = 112;
 
 	private int entityId;
 	private EntityCar car;
@@ -80,8 +80,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		this.car = (EntityCar) mc.world.getEntityByID(entityId);
 		this.render = mc.getRenderManager().getEntityRenderObject(car);
 		
-		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
-		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_WIDTH) / 2;
+		int startY = (this.height - this.GUI_HEIGHT) / 2;
 		
 		this.btnBack = new GuiAdvancedButton(startX + 75, startY - 15, 20, 16, "<");
 		this.btnBack.setListener(() -> 
@@ -176,12 +176,12 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) 
 	{
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
-		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_WIDTH) / 2;
+		int startY = (this.height - this.GUI_HEIGHT) / 2;
         this.mc.getTextureManager().bindTexture(CAR_GUI_TEXTURE);
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
-        this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.GUI_CAR_X_SIZE, this.GUI_CAR_Y_SIZE);
+        this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.GUI_WIDTH, this.GUI_HEIGHT);
 
         this.drawCenteredString(fontRendererObj, this.activePage.getTitle(), startX + 132, startY - 12, Color.WHITE.getRGB());
         
@@ -208,8 +208,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
 	{
-		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
-		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_WIDTH) / 2;
+		int startY = (this.height - this.GUI_HEIGHT) / 2;
 
 		if (mouseButton == 0)
         {
@@ -219,7 +219,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 				return;
 			}
 			
-			if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, 126, 112))
+			if(!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, startX + 70 + this.GUI_WIDTH, startY + this.GUI_HEIGHT))
 			{
 				canDrag = true;
 				mouseClickedX = mouseX;
@@ -246,10 +246,10 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) 
 	{
-		int startX = (this.width - this.GUI_CAR_X_SIZE) / 2;
-		int startY = (this.height - this.GUI_CAR_Y_SIZE) / 2;
+		int startX = (this.width - this.GUI_WIDTH) / 2;
+		int startY = (this.height - this.GUI_HEIGHT) / 2;
 		
-		if((!GuiHelper.isMouseInside(mouseX, mouseY, startX + 130, startY, 126, 112) || dragging) && canDrag)
+		if((!GuiHelper.isMouseInside(mouseX, mouseY, startX + 70, startY, startX + 70 + this.GUI_WIDTH, startY + this.GUI_HEIGHT) || dragging) && canDrag)
 		{
 			int deltaMouseX = mouseClickedX - mouseX;
 			RenderCar.currentOffsetRotationYaw = -deltaMouseX;
