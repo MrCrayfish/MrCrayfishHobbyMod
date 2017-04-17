@@ -346,6 +346,11 @@ public class EntityCar extends Entity
 		return this.attachments.put(type, null);
 	}
 	
+	public boolean hasAttachment(AttachmentType type)
+	{
+		return this.attachments.get(type) != null;
+	}
+	
 	public float getWheelAngle() 
 	{
 		return wheelAngle;

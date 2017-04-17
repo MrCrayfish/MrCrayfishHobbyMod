@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Predicate;
 import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
+import com.mrcrayfish.rccar.entity.EntityCar.AttachmentType;
 import com.mrcrayfish.rccar.event.ModEvents;
 import com.mrcrayfish.rccar.gui.component.ItemSelector;
 import com.mrcrayfish.rccar.gui.component.Page;
 import com.mrcrayfish.rccar.gui.interfaces.ExtendedRender;
 import com.mrcrayfish.rccar.init.ModCases;
+import com.mrcrayfish.rccar.interfaces.IItemSelector;
 import com.mrcrayfish.rccar.network.PacketHandler;
 import com.mrcrayfish.rccar.network.message.MessageUpdateProperties;
 import com.mrcrayfish.rccar.object.Case;
@@ -26,9 +29,10 @@ import net.minecraft.client.gui.GuiSlider.FormatHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHelper
+public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHelper, IItemSelector
 {
 	public static final int ID = 1;
 
@@ -67,6 +71,11 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	/* Attachments Page */
 	private Page pageAttachments;
 	private GuiAdvancedButton btnAttachmentHood;
+	private GuiAdvancedButton btnAttachmentHoodRemove;
+	private GuiAdvancedButton btnAttachmentLeft;
+	private GuiAdvancedButton btnAttachmentLeftRemove;
+	private GuiAdvancedButton btnAttachmentRight;
+	private GuiAdvancedButton btnAttachmentRightRemove;
 	
 	public GuiCarSettings(int entityId) 
 	{
@@ -116,7 +125,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 			{
 				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() - 1));
 			}
-			updateButtons();
+			updateComponents();
 			return true;
 		});
 		this.pageMain.add(this.btnCasePrev);
@@ -129,7 +138,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 			{
 				this.car.getProperties().setCurrentCase(ModCases.CASES.get(currentCase.ordinal() + 1));
 			}
-			updateButtons();
+			updateComponents();
 			return true;
 		});
 		this.pageMain.add(this.btnCaseNext);
@@ -153,16 +162,48 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		
 		this.pageAttachments = new Page("Attachments");
 		
-		this.btnAttachmentHood = new GuiAdvancedButton(startX + 75, startY + 5, 90, 20, "Hood");
+		this.btnAttachmentHood = new GuiAdvancedButton(startX + 75, startY + 5, 73, 20, "Hood");
 		this.btnAttachmentHood.setListener(() -> {
-			this.selector = new ItemSelector(this, ItemSelector.ATTACHMENT_PREDICATE);
+			openItemSelector(ItemSelector.ATTACHMENT_PREDICATE);
 			return true;
 		});
 		this.pageAttachments.add(this.btnAttachmentHood);
+		
+		this.btnAttachmentHoodRemove = new GuiAdvancedButton(startX + 146, startY + 5, CAR_GUI_TEXTURE, 0, 112);
+		this.btnAttachmentHoodRemove.setListener(() -> {
+			return true;
+		});
+		this.pageAttachments.add(this.btnAttachmentHoodRemove);
+		
+		this.btnAttachmentLeft = new GuiAdvancedButton(startX + 75, startY + 28, 73, 20, "Left Side");
+		this.btnAttachmentLeft.setListener(() -> {
+			openItemSelector(ItemSelector.ATTACHMENT_PREDICATE);
+			return true;
+		});
+		this.pageAttachments.add(this.btnAttachmentLeft);
+		
+		this.btnAttachmentLeftRemove = new GuiAdvancedButton(startX + 146, startY + 28, CAR_GUI_TEXTURE, 0, 112);
+		this.btnAttachmentLeftRemove.setListener(() -> {
+			return true;
+		});
+		this.pageAttachments.add(this.btnAttachmentLeftRemove);
+		
+		this.btnAttachmentRight = new GuiAdvancedButton(startX + 75, startY + 51, 73, 20, "Right Side");
+		this.btnAttachmentRight.setListener(() -> {
+			openItemSelector(ItemSelector.ATTACHMENT_PREDICATE);
+			return true;
+		});
+		this.pageAttachments.add(this.btnAttachmentRight);
+		
+		this.btnAttachmentRightRemove = new GuiAdvancedButton(startX + 146, startY + 51, CAR_GUI_TEXTURE, 0, 112);
+		this.btnAttachmentRightRemove.setListener(() -> {
+			return true;
+		});
+		this.pageAttachments.add(this.btnAttachmentRightRemove);
 
 		this.pageAttachments.add(this.btnBack);
 
-		updateButtons();
+		updateComponents();
 	}
 	
 	@Override
@@ -272,7 +313,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		canDrag = false;
 	}
 	
-	public void updateButtons()
+	public void updateComponents()
 	{
 		Case currentCase = this.car.getProperties().getCurrentCase();
 		if(currentCase.ordinal() + 1 == ModCases.length())
@@ -291,6 +332,10 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		{
 			btnCasePrev.enabled = true;
 		}
+		
+		this.btnAttachmentHoodRemove.enabled = this.car.hasAttachment(AttachmentType.HOOD);
+		this.btnAttachmentLeftRemove.enabled = this.car.hasAttachment(AttachmentType.LEFT_SIDE);
+		this.btnAttachmentRightRemove.enabled = this.car.hasAttachment(AttachmentType.RIGHT_SIDE);
 	}
 	
 	@Override
@@ -355,9 +400,25 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	{
 		this.selectedButton = selectedButton;
 	}
+	
+	
 
 	public void closeInventorySelector()
 	{
+		
+	}
+
+	@Override
+	public void openItemSelector(Predicate<Item> predicate) 
+	{
+		this.selector = new ItemSelector(this, this, predicate);
+		this.selector.init(this.buttonList);
+	}
+
+	@Override
+	public void closeItemSelector() 
+	{
+		this.selector.close(this.buttonList);
 		this.selector = null;
 	}
 }
