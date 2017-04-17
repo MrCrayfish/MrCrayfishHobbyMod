@@ -244,11 +244,15 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
         {
         	selector.render(mouseX, mouseY);
         }
+        
+        super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException 
 	{
+		super.mouseClicked(mouseX, mouseY, mouseButton);
+		
 		int startX = (this.width - this.GUI_WIDTH) / 2;
 		int startY = (this.height - this.GUI_HEIGHT) / 2;
 
@@ -311,6 +315,8 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		RenderCar.currentOffsetRotationYaw = 0F;
 		dragging = false;
 		canDrag = false;
+		
+		super.mouseReleased(mouseX, mouseY, state);
 	}
 	
 	public void updateComponents()
@@ -394,18 +400,6 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		}
 		page.show(components);
 		this.activePage = page;
-	}
-	
-	public void setSelectedButton(GuiButton selectedButton) 
-	{
-		this.selectedButton = selectedButton;
-	}
-	
-	
-
-	public void closeInventorySelector()
-	{
-		
 	}
 
 	@Override

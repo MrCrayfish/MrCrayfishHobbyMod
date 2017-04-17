@@ -91,10 +91,7 @@ public class ItemSelector
  		gui.drawTexturedModalRect(startX, startY, 0, 0, this.X_SIZE, this.Y_SIZE);
  		
  		gui.drawString(gui.mc.fontRendererObj, "Pick a module to attach", startX + 7, startY + 5, Color.WHITE.getRGB());
- 		
- 		this.btnAdd.drawButton(gui.mc, mouseX, mouseY);
- 		this.btnClose.drawButton(gui.mc, mouseX, mouseY);
- 		
+
  		InventoryPlayer inventory = gui.mc.player.inventory;
 		for(int i = 9; i < inventory.getSizeInventory() - 5; i++) //The 4 is the inventory slots
 		{
@@ -180,9 +177,9 @@ public class ItemSelector
 			ItemStack stack = inventory.getStackInSlot(i);
 			if(!stack.isEmpty())
 			{
-				boolean isModule = stack.getItem() instanceof ItemEgg;
+				boolean match = predicate.apply(stack.getItem());
 				
-				if(isModule && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
+				if(match && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
 				{
 					if(this.selected == i) {
 						this.selected = -1;
@@ -203,9 +200,9 @@ public class ItemSelector
 			ItemStack stack = inventory.getStackInSlot(i);
 			if(!stack.isEmpty())
 			{
-				boolean isModule = stack.getItem() instanceof ItemEgg;
+				boolean match = predicate.apply(stack.getItem());
 				
-				if(isModule && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
+				if(match && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
 				{
 					if(this.selected == i) {
 						this.selected = -1;
