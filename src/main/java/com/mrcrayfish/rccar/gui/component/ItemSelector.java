@@ -2,8 +2,10 @@ package com.mrcrayfish.rccar.gui.component;
 
 import java.awt.Color;
 
+import com.google.common.base.Predicate;
 import com.mrcrayfish.rccar.gui.GuiAdvancedButton;
 import com.mrcrayfish.rccar.gui.GuiCarSettings;
+import com.mrcrayfish.rccar.interfaces.IAttachment;
 import com.mrcrayfish.rccar.util.GuiHelper;
 import com.mrcrayfish.rccar.util.RenderUtil;
 
@@ -11,12 +13,21 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemEgg;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-public class ModuleSelector
+public class ItemSelector
 {
+	public static final Predicate<Item> ATTACHMENT_PREDICATE = new Predicate<Item>() {
+		@Override
+		public boolean apply(Item input)
+		{
+			return input instanceof IAttachment;
+		}
+	};
+	
 	private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("crccm:textures/gui/inventory_select.png");
 	private static final int X_SIZE = 176;
 	private static final int Y_SIZE = 100;
@@ -30,18 +41,21 @@ public class ModuleSelector
 	private GuiAdvancedButton btnAdd;
 	private GuiAdvancedButton btnClose;
 	
+	private Predicate<Item> predicate;
+	
 	private int selected = -1;
 	
-	public ModuleSelector(GuiCarSettings settings) 
+	public ItemSelector(GuiCarSettings settings, Predicate<Item> predicate) 
 	{
 		this.settings = settings;
+		this.predicate = predicate;
 		this.init();
 	}
 	
 	private void init()
 	{
-		int inventoryStartX = (settings.width - ModuleSelector.getWidth()) / 2;
-		int inventoryStartY = (settings.height - ModuleSelector.getHeight()) / 2;
+		int inventoryStartX = (settings.width - ItemSelector.getWidth()) / 2;
+		int inventoryStartY = (settings.height - ItemSelector.getHeight()) / 2;
 		
 		this.btnAdd = new GuiAdvancedButton(inventoryStartX + 145, inventoryStartY - 15, 24, 16, "Add");
 		this.btnAdd.enabled = false;

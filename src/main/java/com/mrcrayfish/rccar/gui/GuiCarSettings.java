@@ -8,7 +8,7 @@ import java.util.List;
 import com.mrcrayfish.rccar.client.render.RenderCar;
 import com.mrcrayfish.rccar.entity.EntityCar;
 import com.mrcrayfish.rccar.event.ModEvents;
-import com.mrcrayfish.rccar.gui.component.ModuleSelector;
+import com.mrcrayfish.rccar.gui.component.ItemSelector;
 import com.mrcrayfish.rccar.gui.component.Page;
 import com.mrcrayfish.rccar.gui.interfaces.ExtendedRender;
 import com.mrcrayfish.rccar.init.ModCases;
@@ -42,7 +42,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 	
 	private int rotation;
 	private boolean dirty = false;
-	private ModuleSelector selector = null;
+	private ItemSelector selector = null;
 	
 	private int mouseClickedX;
 	private boolean canDrag = false;
@@ -155,7 +155,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		
 		this.btnAttachmentHood = new GuiAdvancedButton(startX + 75, startY + 5, 90, 20, "Hood");
 		this.btnAttachmentHood.setListener(() -> {
-			this.selector = new ModuleSelector(this);
+			this.selector = new ItemSelector(this, ItemSelector.ATTACHMENT_PREDICATE);
 			return true;
 		});
 		this.pageAttachments.add(this.btnAttachmentHood);
