@@ -9,9 +9,21 @@ import net.minecraft.client.gui.GuiButton;
 
 public class Page
 {
+	private String title;
+	
 	private List<GuiButton> components = new ArrayList<GuiButton>();
 	
 	private ExtendedRender render;
+	
+	public Page(String title) 
+	{
+		this.title = title;
+	}
+	
+	public String getTitle() 
+	{
+		return title;
+	}
 	
 	public void add(GuiButton component)
 	{

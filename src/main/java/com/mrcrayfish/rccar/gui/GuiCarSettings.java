@@ -101,7 +101,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
             return true;
 		});
 		
-		this.pageMain = new Page();
+		this.pageMain = new Page("Workshop");
 		this.pageMain.setExtendedRender((s, e) -> 
 		{
 			this.drawCenteredString(fontRendererObj, I18n.format(String.format("case.%s.name", this.car.getProperties().getCurrentCase().id)), startX + 132, startY + 10, Color.WHITE.getRGB());
@@ -151,7 +151,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		
 		setActivePage(this.pageMain);
 		
-		this.pageAttachments = new Page();
+		this.pageAttachments = new Page("Attachments");
 		
 		this.btnAttachmentHood = new GuiAdvancedButton(startX + 75, startY + 5, 90, 20, "Hood");
 		this.btnAttachmentHood.setListener(() -> {
@@ -183,7 +183,7 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 		GlStateManager.enableBlend();
         this.drawTexturedModalRect(startX + 70, startY, 0, 0, this.GUI_CAR_X_SIZE, this.GUI_CAR_Y_SIZE);
 
-        this.drawCenteredString(fontRendererObj, "Workshop", startX + 132, startY - 12, Color.WHITE.getRGB());
+        this.drawCenteredString(fontRendererObj, this.activePage.getTitle(), startX + 132, startY - 12, Color.WHITE.getRGB());
         
         this.btnExit.drawButton(this.mc, mouseX, mouseY);
         
@@ -193,14 +193,11 @@ public class GuiCarSettings extends GuiScreen implements GuiResponder, FormatHel
 			button.drawButton(this.mc, mouseX, mouseY);
 		}
 
-        if(this.activePage != null)
-        {
-        	ExtendedRender render = this.activePage.getExtendedRender();
-        	if(render != null)
-        	{
-        		render.render(startX, startY);
-        	}
-        }
+        ExtendedRender render = this.activePage.getExtendedRender();
+    	if(render != null)
+    	{
+    		render.render(startX, startY);
+    	}
 
         if(selector != null)
         {
