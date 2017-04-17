@@ -93,9 +93,9 @@ public class ItemSelector
 			ItemStack stack = inventory.getStackInSlot(i);
 			if(!stack.isEmpty())
 			{
-				boolean isModule = stack.getItem() instanceof ItemEgg;
+				boolean match = predicate.apply(stack.getItem());
 				
-				if(isModule && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
+				if(match && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
 				{
 					settings.drawRect(startX + offsetX, startY + offsetY, startX + offsetX + 18, startY + offsetY + 18, HOVER_COLOR);
 				}
@@ -105,7 +105,7 @@ public class ItemSelector
 					RenderUtil.renderItem(startX + offsetX + 1, startY + offsetY + 1, stack, true);
 				}
 				
-				if(!isModule)
+				if(!match)
 				{
 					settings.drawRect(startX + offsetX, startY + offsetY, startX + offsetX + 18, startY + offsetY + 18, INVALID_COLOR);
 				}
@@ -120,9 +120,9 @@ public class ItemSelector
 			ItemStack stack = inventory.getStackInSlot(i);
 			if(!stack.isEmpty())
 			{
-				boolean isModule = stack.getItem() instanceof ItemEgg;
+				boolean match = predicate.apply(stack.getItem());
 				
-				if(isModule && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
+				if(match && GuiHelper.isMouseInside(mouseX, mouseY, startX + offsetX, startY + offsetY, startX + offsetX + 17, startY + offsetY + 17))
 				{
 					settings.drawRect(startX + offsetX, startY + offsetY, startX + offsetX + 18, startY + offsetY + 18, HOVER_COLOR);
 				}
@@ -132,7 +132,7 @@ public class ItemSelector
 					RenderUtil.renderItem(startX + offsetX + 1, startY + offsetY + 1, stack, true);
 				}
 				
-				if(!isModule)
+				if(!match)
 				{
 					settings.drawRect(startX + offsetX, startY + offsetY, startX + offsetX + 18, startY + offsetY + 18, INVALID_COLOR);
 				}
