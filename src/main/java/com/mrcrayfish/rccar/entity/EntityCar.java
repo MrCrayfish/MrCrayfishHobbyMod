@@ -3,6 +3,8 @@ package com.mrcrayfish.rccar.entity;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
@@ -16,6 +18,7 @@ import com.mrcrayfish.rccar.gui.GuiHandler;
 import com.mrcrayfish.rccar.init.ModCases;
 import com.mrcrayfish.rccar.init.ModItems;
 import com.mrcrayfish.rccar.init.ModSounds;
+import com.mrcrayfish.rccar.interfaces.IAttachment;
 import com.mrcrayfish.rccar.object.Case;
 
 import io.netty.buffer.ByteBuf;
@@ -67,6 +70,7 @@ public class EntityCar extends Entity
 	private EnumFacing angledFacing;
 	
 	private Properties props;
+	private Map<AttachmentType, IAttachment> attachments;
 	
 	public EntityCar(World worldIn) 
 	{
@@ -76,6 +80,7 @@ public class EntityCar extends Entity
 		this.onGround = true;
 		this.props = new Properties();
 		this.props.setCurrentCase(ModCases.getCase("standard"));
+		this.attachments = new HashMap<>();
 	}
 	
 	public EntityCar(World worldIn, double x, double y, double z) 
@@ -331,6 +336,16 @@ public class EntityCar extends Entity
 		return 0.75F;
 	}
 	
+	public void setAttachment(AttachmentType type, IAttachment attachment)
+	{
+		this.attachments.put(type, attachment);
+	}
+	
+	public IAttachment removeAttachment(AttachmentType type)
+	{
+		return this.attachments.put(type, null);
+	}
+	
 	public float getWheelAngle() 
 	{
 		return wheelAngle;
@@ -404,5 +419,10 @@ public class EntityCar extends Entity
 			this.currentCase = ModCases.getCase(tag.getString("currentCase"));
 			this.wheelSize = tag.getFloat("wheelSize");
 		}
+	}
+	
+	public static enum AttachmentType
+	{
+		HOOD, LEFT_SIDE, RIGHT_SIDE, REAR;
 	}
 }
