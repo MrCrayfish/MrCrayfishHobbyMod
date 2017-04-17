@@ -15,7 +15,7 @@ import net.minecraft.item.ItemEgg;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-public class InventorySelector
+public class ModuleSelector
 {
 	private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("crccm:textures/gui/inventory_select.png");
 	private static final int X_SIZE = 176;
@@ -32,7 +32,7 @@ public class InventorySelector
 	
 	private int selected = -1;
 	
-	public InventorySelector(GuiCarSettings settings) 
+	public ModuleSelector(GuiCarSettings settings) 
 	{
 		this.settings = settings;
 		this.init();
@@ -40,8 +40,8 @@ public class InventorySelector
 	
 	private void init()
 	{
-		int inventoryStartX = (settings.width - InventorySelector.getWidth()) / 2;
-		int inventoryStartY = (settings.height - InventorySelector.getHeight()) / 2;
+		int inventoryStartX = (settings.width - ModuleSelector.getWidth()) / 2;
+		int inventoryStartY = (settings.height - ModuleSelector.getHeight()) / 2;
 		
 		this.btnAdd = new GuiAdvancedButton(inventoryStartX + 145, inventoryStartY - 15, 24, 16, "Add");
 		this.btnAdd.enabled = false;
